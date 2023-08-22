@@ -1,39 +1,39 @@
 package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.model.ItemNotExistException;
-import ru.practicum.shareit.exception.model.NotOwnerException;
+import ru.practicum.shareit.exception.ItemNotExistException;
+import ru.practicum.shareit.exception.NotOwnerException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
 public class ItemRepositoryImpl implements ItemRepository {
-    private final HashMap<Long, Item> items = new HashMap<>();
+    private final Map<Long, Item> items = new HashMap<>();
     private Long id = 0L;
 
     @Override
     public Item create(Item item, long userId) {
         item.setItemId(++id);
-        item.setOwnerId(userId);
         items.put(id, item);
         return getById(id, userId);
     }
 
     @Override
     public Item update(Item item, long id, long userId) {
-        Item receivedItem = checkItemFromUpdate(item, userId);
+        Item receivedItem = checkItemFromUpdate(item, id, userId);
         items.put(id, receivedItem);
-        return getById(id, userId);
+        return receivedItem;
     }
 
     @Override
     public List<Item> getAll(long userId) {
         return items.values().stream()
-                .filter(i -> i.getOwnerId() == userId)
+                .filter(i -> i.getOwner().getId() == userId)
                 .collect(Collectors.toList());
     }
 
@@ -57,22 +57,21 @@ public class ItemRepositoryImpl implements ItemRepository {
                 .collect(Collectors.toList());
     }
 
-    private Item checkItemFromUpdate(Item item, long userId) {
-        Item otherItem = getById(id, userId);
-        if (otherItem.getOwnerId() != userId) {
+    private Item checkItemFromUpdate(Item item, long itemId, long userId) {
+        Item otherItem = getById(itemId, userId);
+        if (otherItem.getOwner().getId() != userId) {
             throw new NotOwnerException("Пользователь с айди " + userId + " не является владельцем вещи");
         }
-        if (item.getName() != null && item.getDescription() == null && item.getAvailable() == null) {
+        if (item.getName() != null) {
             otherItem.setName(item.getName());
-        } else if (item.getDescription() != null && item.getName() == null && item.getAvailable() == null) {
+        }
+        if (item.getDescription() != null) {
             otherItem.setDescription(item.getDescription());
-        } else if (item.getAvailable() != null && item.getName() == null && item.getDescription() == null) {
-            otherItem.setAvailable(item.getAvailable());
-        } else {
-            otherItem.setName(item.getName());
-            otherItem.setDescription(item.getDescription());
+        }
+        if (item.getAvailable() != null) {
             otherItem.setAvailable(item.getAvailable());
         }
+
         return otherItem;
     }
 }

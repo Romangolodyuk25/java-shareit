@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotNull;
 
@@ -15,5 +16,5 @@ public class Item {
     private String description;
     @NotNull
     private Boolean available;
-    private Long ownerId;
+    private User owner;
 }

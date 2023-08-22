@@ -22,6 +22,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto userDto) {
         validateUser(userDto);
+        checkExistEmail(userDto);
         log.info("Юзер " + userDto + " создан");
         User newUser = UserDtoMapper.toUser(userDto);
         return UserDtoMapper.toUserDto(userRepository.create(newUser));
@@ -37,11 +38,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         log.info("Количесвто юзеров " + userRepository.getAll().size());
-//        List<UserDto> usersDto = new ArrayList<>();
-//        for (User user : userRepository.getAll()) {
-//            usersDto.add(UserDtoMapper.convertInUserDto(user));
-//        }
-//        return usersDto;
         return userRepository.getAll().stream()
                 .map(UserDtoMapper::toUserDto)
                 .collect(Collectors.toList());
@@ -64,11 +60,14 @@ public class UserServiceImpl implements UserService {
                 userDto.getName().isEmpty() || userDto.getEmail().isEmpty()) {
             throw new ValidationException();
         }
+    }
+
+    private void checkExistEmail(UserDto userDto) {
         List<UserDto> usersDto = getAllUsers();
         for (UserDto u : usersDto) {
             if (u.getEmail().equals(userDto.getEmail())) {
                 log.info("Юзер с email " + userDto.getEmail() + " уже существует");
-                throw new RuntimeException();
+                throw new RuntimeException("Юзер с данныи имейлом уже существует");
             }
         }
     }

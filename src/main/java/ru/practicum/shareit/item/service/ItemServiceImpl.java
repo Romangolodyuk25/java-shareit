@@ -3,11 +3,12 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.model.UserNotExistObject;
+import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
@@ -25,15 +26,16 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto createItem(ItemDto itemDto, long userId) {
         validationItem(itemDto, userId);
+        User user = userRepository.getById(userId);
         log.info("Item " + itemDto + " создан");
-        Item newItem = ItemDtoMapper.toItem(itemDto, userId);
+        Item newItem = ItemDtoMapper.toItem(itemDto, user);
         return ItemDtoMapper.toItemDto(itemRepository.create(newItem, userId));
     }
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, long id, long userId) {
-        userRepository.getById(userId);
-        Item newItem = ItemDtoMapper.toItem(itemDto, userId);
+        User user = userRepository.getById(userId);
+        Item newItem = ItemDtoMapper.toItem(itemDto, user);
         log.info("Item " + itemDto + " обновлен");
         return ItemDtoMapper.toItemDto(itemRepository.update(newItem, id, userId));
     }
