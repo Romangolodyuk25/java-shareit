@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.exception;
+package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -6,9 +6,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.practicum.shareit.user.exception.model.UserNotExistObject;
-import ru.practicum.shareit.user.exception.model.ItemNotExistException;
-import ru.practicum.shareit.user.exception.model.NotOwnerException;
+import ru.practicum.shareit.exception.model.UserNotExistObject;
+import ru.practicum.shareit.exception.model.ItemNotExistException;
+import ru.practicum.shareit.exception.model.NotOwnerException;
 
 import javax.validation.ValidationException;
 

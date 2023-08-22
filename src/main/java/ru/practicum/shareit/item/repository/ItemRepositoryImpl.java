@@ -1,8 +1,8 @@
 package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.user.exception.model.ItemNotExistException;
-import ru.practicum.shareit.user.exception.model.NotOwnerException;
+import ru.practicum.shareit.exception.model.ItemNotExistException;
+import ru.practicum.shareit.exception.model.NotOwnerException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;

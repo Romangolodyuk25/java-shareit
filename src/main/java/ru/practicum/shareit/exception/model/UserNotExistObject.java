@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.exception.model;
+package ru.practicum.shareit.exception.model;
 
 public class UserNotExistObject extends RuntimeException {
     public UserNotExistObject(String mess) {
