@@ -49,7 +49,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(long id, long userId) {
-        return ItemDtoMapper.toItemDto(itemRepository.getById(id, userId));
+        return ItemDtoMapper.toItemDto(itemRepository.getById(id));
     }
 
     @Override
