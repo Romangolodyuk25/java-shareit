@@ -14,7 +14,7 @@ public interface ItemRepository {
 
     List<Item> getAll(long userId);
 
-    Item getById(long id, long userId);
+    Item getById(long id);
 
     List<Item> searchItems(String text, long userId);
 }

@@ -20,7 +20,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     public Item create(Item item, long userId) {
         item.setItemId(++id);
         items.put(id, item);
-        return getById(id, userId);
+        return getById(id);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item getById(long id, long userId) {
+    public Item getById(long id) {
         if (!items.containsKey(id)) {
             throw new ItemNotExistException("Вещи с айди " + id + " не существует");
         }
@@ -58,7 +58,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     private Item checkItemFromUpdate(Item item, long itemId, long userId) {
-        Item otherItem = getById(itemId, userId);
+        Item otherItem = getById(itemId);
         if (otherItem.getOwner().getId() != userId) {
             throw new NotOwnerException("Пользователь с айди " + userId + " не является владельцем вещи");
         }
