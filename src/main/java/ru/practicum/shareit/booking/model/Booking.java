@@ -2,26 +2,42 @@ package ru.practicum.shareit.booking.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@Entity
+@Table(name = "BOOKINGS")
 public class Booking {
-    @NotNull
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "booking_id", nullable = false)
     private Long id;
-    @NotNull
+
     @PastOrPresent
+    @Column(name = "start_date", nullable = false)
     private LocalDateTime start;
-    @NotNull
+
     @PastOrPresent
+    @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
+
     @NotNull
-    private Long itemId;
+    @OneToOne//не уверен
+    private Item item;
+
     @NotNull
-    private Long bookerId;
+    @OneToOne//не уверен
+    //указать название столбца
+    private User booker;
+
     @NotNull
+    @Enumerated(value = EnumType.STRING)
     private Status status;
 }

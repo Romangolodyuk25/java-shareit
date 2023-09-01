@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
@@ -25,20 +26,20 @@ public class UserServiceImpl implements UserService {
         checkExistEmail(userDto);
         log.info("Юзер " + userDto + " создан");
         User newUser = UserDtoMapper.toUser(userDto);
-        return UserDtoMapper.toUserDto(userRepository.create(newUser));
+        return UserDtoMapper.toUserDto(userRepository.save(newUser));
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, long id) {
         User newUser = UserDtoMapper.toUser(userDto);
         log.info("Юзер " + userDto + " обновлен");
-        return UserDtoMapper.toUserDto(userRepository.update(newUser, id));
+        return UserDtoMapper.toUserDto(userRepository.save(newUser));
     }
 
     @Override
     public List<UserDto> getAllUsers() {
-        log.info("Количесвто юзеров " + userRepository.getAll().size());
-        return userRepository.getAll().stream()
+        log.info("Количесвто юзеров " + userRepository.findAll().size());
+        return userRepository.findAll().stream()
                 .map(UserDtoMapper::toUserDto)
                 .collect(Collectors.toList());
     }
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(long id) {
         log.info("Юзер с id " + id + " получен");
-        return UserDtoMapper.toUserDto(userRepository.getById(id));
+        return UserDtoMapper.toUserDto(userRepository.findById(id).orElseThrow(() -> new UserNotExistObject("User not exist")));
     }
 
     @Override
