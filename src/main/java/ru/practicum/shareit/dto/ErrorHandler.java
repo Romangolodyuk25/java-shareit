@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import ru.practicum.shareit.exception.BookingNotExistException;
 import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.NotOwnerException;
@@ -56,5 +57,12 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotOwner(final NotOwnerException e) {
         return new ErrorResponse("Юзер не является владельцем вещи", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleBooking(final BookingNotExistException e) {
+        log.error("брони не существуе", e);
+        return new ErrorResponse("Брони не существует", e.getMessage());
     }
 }

@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.BookingNotExistException;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.model.Item;
@@ -60,9 +62,39 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto getBookingById(long bookingId, long userId) {
-        //просто написать запрос получения по 2 айди
         userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("user not exist"));
-        return BookingDtoMapper.toBookingDto(bookingRepository.findByBookingIdAndUserUserId(bookingId, userId));
+        return BookingDtoMapper.toBookingDto(bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotExistException("booking not exist")));
+    }
+
+    @Override
+    public List<BookingDto> getAllBookingsByUserIdAndState(long userId, String state) {
+        userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("user not exist"));
+        if (State.valueOf(state).equals(State.WAITING)) {
+            return getAllBookings(userId).stream()
+                    .filter(b -> b.getStatus().equals(Status.WAITING))
+                    .collect(Collectors.toList());
+        }
+        if (State.valueOf(state).equals(State.CURRENT)) {
+            return getAllBookings(userId).stream()
+                    .filter(b -> b.getStatus().equals(Status.APPROVED))
+                    .collect(Collectors.toList());
+        }
+        if (State.valueOf(state).equals(State.PAST)) {
+            return getAllBookings(userId).stream()
+                    .filter(b -> b.getStatus().equals(Status.CANCELED))
+                    .collect(Collectors.toList());
+        }
+        if (State.valueOf(state).equals(State.REJECTED)) {
+            return getAllBookings(userId).stream()
+                    .filter(b -> b.getStatus().equals(Status.REJECTED))
+                    .collect(Collectors.toList());
+        }
+        if (State.valueOf(state).equals(State.FUTURE)) {
+            return getAllBookings(userId).stream()
+                    .filter(b -> b.getStatus() == null)
+                    .collect(Collectors.toList());
+        }
+        return getAllBookings(userId);
     }
 
     @Override
