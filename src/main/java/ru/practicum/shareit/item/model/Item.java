@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
