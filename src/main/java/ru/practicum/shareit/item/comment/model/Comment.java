@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -28,4 +29,7 @@ public class Comment {
     @JoinColumn(name = "author_id")
     @ManyToOne
     private User author;
+
+    @Transient
+    private LocalDateTime created;
 }

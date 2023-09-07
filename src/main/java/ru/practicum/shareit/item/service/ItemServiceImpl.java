@@ -3,6 +3,9 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingDtoForItem;
+import ru.practicum.shareit.booking.dto.BookingDtoMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.UserNotExistObject;
@@ -14,6 +17,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, long id, long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("User not exist"));
+        userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("User not exist"));
         Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotExistException("Item not exist"));
         Item newItem = checkFromUpdate(itemDto, item, id);
         log.info("Item " + itemDto + " обновлен");
@@ -47,6 +51,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItem(long userId) {
+
         return itemRepository.findAll().stream()
                 .filter(i -> i.getOwner().getId() == userId)
                 .map(ItemDtoMapper::toItemDto)
@@ -55,6 +60,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(long id, long userId) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotExistException("Item not exist"));
+        if (bookingRepository.findAll().size() != 0 && item.getOwner().getId() == userId) {
+            BookingDtoForItem lastBooking = BookingDtoMapper.toBookingDtoForItem(bookingRepository.findAllBookingByItemIdForLastBooking(id, LocalDateTime.now()).get(0));
+            BookingDtoForItem nextBooking = BookingDtoMapper.toBookingDtoForItem(bookingRepository.findAllBookingByItemIdForNextBooking(id, LocalDateTime.now()).get(0));
+            return ItemDtoMapper.toItemDtoWithBooking(item, lastBooking, nextBooking);
+        }
         return ItemDtoMapper.toItemDto(itemRepository.findById(id).orElseThrow(() -> new ItemNotExistException("Item not exist")));
     }
 
