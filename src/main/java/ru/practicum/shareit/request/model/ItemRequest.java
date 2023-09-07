@@ -22,7 +22,6 @@ public class ItemRequest {
     @NotNull
     private String description;
     @NotNull
-    @Column(name = "requestor_id")
     @OneToOne
     private User requestor; // айди пользователя , который создал запрос
     @NotNull

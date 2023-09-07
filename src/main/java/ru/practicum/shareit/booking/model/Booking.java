@@ -2,16 +2,16 @@ package ru.practicum.shareit.booking.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "BOOKINGS")
 public class Booking {
@@ -20,24 +20,20 @@ public class Booking {
     @Column(name = "booking_id", nullable = false)
     private Long id;
 
-    @PastOrPresent
     @Column(name = "start_date", nullable = false)
     private LocalDateTime start;
 
-    @PastOrPresent
     @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
 
-    @NotNull
     @OneToOne//не уверен
+    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
-    @NotNull
     @OneToOne//не уверен
-    //указать название столбца
+    @JoinColumn(name = "booker_id", nullable = false)
     private User booker;
 
-    @NotNull
     @Enumerated(value = EnumType.STRING)
     private Status status;
 }

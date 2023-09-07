@@ -4,20 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingDto {
-    private Long id;
+@Data
+public class BookingDtoIn {
+    Long id = 0L;
+    @NotNull
+    private Long itemId;
+    @NotNull
     private LocalDateTime start;
+    @NotNull
     private LocalDateTime end;
     private Status status = Status.WAITING;
-    private User booker;
-    private Item item;
-    private String itemName;
+
 }

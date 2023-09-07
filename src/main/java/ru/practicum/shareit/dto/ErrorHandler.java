@@ -6,10 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.practicum.shareit.exception.BookingNotExistException;
-import ru.practicum.shareit.exception.UserNotExistObject;
-import ru.practicum.shareit.exception.ItemNotExistException;
-import ru.practicum.shareit.exception.NotOwnerException;
+import ru.practicum.shareit.exception.*;
 
 import javax.validation.ValidationException;
 
@@ -64,5 +61,38 @@ public class ErrorHandler {
     public ErrorResponse handleBooking(final BookingNotExistException e) {
         log.error("брони не существуе", e);
         return new ErrorResponse("Брони не существует", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotOwner(final IsNotOwnerException e) {
+        log.error("Юзер не является владельце", e);
+        return new ErrorResponse("Юзер не является владельце", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleIsOwner(final UserIsOwnerException e) {
+        log.error("Юзер является владельцем", e);
+        return new ErrorResponse("Юзер является владельцем вещи", e.getMessage());
+    }
+
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIsOwnerException(final IsNotAvailableException e) {
+        return new ErrorResponse("Вещь нельзя забронировать", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleStatusAlreadyException(final StatusAlreadyApprovedException e) {
+        return new ErrorResponse("Статус уже подтвержден", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseUnsupp handleUnsupported(final UnsupportedStatusExist e) {
+        return new ErrorResponseUnsupp("Unknown state: UNSUPPORTED_STATUS");
     }
 }

@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +25,7 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
     public ItemDto createItem(ItemDto itemDto, long userId) {
@@ -36,7 +39,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto updateItem(ItemDto itemDto, long id, long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("User not exist"));
-        Item newItem = ItemDtoMapper.toItem(itemDto, user);
+        Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotExistException("Item not exist"));
+        Item newItem = checkFromUpdate(itemDto, item, id);
         log.info("Item " + itemDto + " обновлен");
         return ItemDtoMapper.toItemDto(itemRepository.save(newItem));
     }
@@ -44,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAllItem(long userId) {
         return itemRepository.findAll().stream()
-                .filter(u -> u.getItemId() == userId)
+                .filter(i -> i.getOwner().getId() == userId)
                 .map(ItemDtoMapper::toItemDto)
                 .collect(Collectors.toList());
     }
@@ -57,6 +61,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> searchItems(String text, long userId) {
         userRepository.findById(userId).orElseThrow();
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
         return itemRepository.searchItems(text, userId).stream()
                 .map(ItemDtoMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -68,5 +75,18 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Ошибка валидации");
         }
         userRepository.findById(userId);
+    }
+
+    private Item checkFromUpdate(ItemDto itemDto, Item item, long id) {
+        if (itemDto.getAvailable()!= null) {
+            item.setAvailable(itemDto.getAvailable());
+        }
+        if (itemDto.getName()!=null) {
+            item.setName(itemDto.getName());
+        }
+        if (itemDto.getDescription()!=null) {
+            item.setDescription(itemDto.getDescription());
+        }
+        return item;
     }
 }
