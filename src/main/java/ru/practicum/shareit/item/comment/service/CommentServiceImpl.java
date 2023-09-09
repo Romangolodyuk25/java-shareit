@@ -59,23 +59,8 @@ public class CommentServiceImpl implements CommentService {
         if (bookingList.isEmpty()) {
             throw new ValidationException();
         }
-//        if (lastBooking == null || lastBooking.size() == 0) {
-//            throw new ValidationException();
-//        }
-//        List<Long> lastBookingIds = lastBooking.stream()
-//                .map(b -> b.getBooker().getId())
-//                .collect(Collectors.toList());
-//
         if (commentDtoIn == null || commentDtoIn.getText().isEmpty()) {
             throw new ValidationException();
         }
-//        if (!lastBookingIds.contains(user.getId())) {
-//            throw new ValidationException();
-//        } else {
-//            bookingList.sort((x1, x2) -> x1.getEnd().compareTo(x2.getEnd()));
-//            if (LocalDateTime.now().isBefore(bookingList.get(0).getEnd())) {
-//                throw new ValidationException();
-//            }
-//        }
     }
 }

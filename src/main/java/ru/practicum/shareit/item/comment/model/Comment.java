@@ -31,6 +31,6 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     private User author;
 
-    @Transient
+    @Column(name = "created")
     private LocalDateTime created;
 }
