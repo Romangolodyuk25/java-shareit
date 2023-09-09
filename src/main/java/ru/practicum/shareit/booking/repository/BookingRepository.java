@@ -32,8 +32,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("select b " +
             "from Booking b " +
-            "join b.booker bk " +
-            "where bk.id = ?1 AND b.start > ?2 " +
+            "where b.booker.id = ?1 AND b.start > ?2 " +
             "order by b.start desc ")
     List<Booking> findAllBookingsForStateFuture(long userId,  LocalDateTime time);
 

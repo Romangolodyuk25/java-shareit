@@ -36,7 +36,7 @@ public class BookingDtoMapper {
                 item,
                 booker,
                 bookingDtoIn.getStatus()
-                );
+        );
     }
 
     public static BookingDtoForItem toBookingDtoForItem(Booking booking) {
@@ -45,6 +45,6 @@ public class BookingDtoMapper {
                 booking.getEnd(),
                 booking.getBooker().getId(),
                 booking.getStatus()
-                );
+        );
     }
 }

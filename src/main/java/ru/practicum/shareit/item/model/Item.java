@@ -3,9 +3,11 @@ package ru.practicum.shareit.item.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -27,7 +29,8 @@ public class Item {
     @Column(name = "available", nullable = false)
     private Boolean available;
 
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    @ManyToOne()
     private User owner;
+
 }

@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Comment")
+@Entity
+@Table(name = "COMMENTS")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +24,11 @@ public class Comment {
     private String text;
 
     @JoinColumn(name = "item_id")
-    //аннотация которая нужна для сущности которая не имеет жизненный цикл
+    @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
     @JoinColumn(name = "author_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User author;
 
     @Transient

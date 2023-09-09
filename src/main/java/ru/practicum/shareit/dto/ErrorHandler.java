@@ -3,6 +3,7 @@ package ru.practicum.shareit.dto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -94,5 +95,11 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponseUnsupp handleUnsupported(final UnsupportedStatusExist e) {
         return new ErrorResponseUnsupp("Unknown state: UNSUPPORTED_STATUS");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseUnsupp handleMissingPathVariableException(final MissingPathVariableException e) {
+        return new ErrorResponseUnsupp("Не был передан параметр");
     }
 }
