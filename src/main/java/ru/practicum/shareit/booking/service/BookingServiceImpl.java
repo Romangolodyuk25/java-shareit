@@ -113,32 +113,27 @@ public class BookingServiceImpl implements BookingService {
         if (state.equals("UNSUPPORTED_STATUS")) {
             throw new UnsupportedStatusExist("Unknown state: UNSUPPORTED_STATUS");
         }
-        if (State.valueOf(state).equals(State.ALL)) {
-            return bookingRepository.findAllBookingsForStateAll(userId).stream()
-                    .map(BookingDtoMapper::toBookingDto)
-                    .collect(Collectors.toList());
-        }
-        if (State.WAITING.equals(State.valueOf(state))) {
+        if (State.valueOf(state).equals(State.WAITING)) {
             return bookingRepository.findAllBookingsForStateWaiting(userId).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.CURRENT.equals(State.valueOf(state))) {
+        if (State.valueOf(state).equals(State.CURRENT)) {
             return bookingRepository.findAllBookingsForStateCurrent(userId, LocalDateTime.now()).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.PAST.equals(State.valueOf(state))) {
+        if (State.valueOf(state).equals(State.PAST)) {
             return bookingRepository.findAllBookingsForStatePast(userId, LocalDateTime.now()).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.REJECTED.equals(State.valueOf(state))) {
+        if (State.valueOf(state).equals(State.REJECTED)) {
             return bookingRepository.findAllBookingsForStateReject(userId).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.FUTURE.equals(State.valueOf(state))) {
+        if (State.valueOf(state).equals(State.FUTURE)) {
             return bookingRepository.findAllBookingsForStateFuture(userId, LocalDateTime.now()).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
