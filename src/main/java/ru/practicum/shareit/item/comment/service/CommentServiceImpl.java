@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CommentServiceImpl implements CommentService{
+public class CommentServiceImpl implements CommentService {
 
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
@@ -30,12 +30,12 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public CommentDto createComment(long itemId, CommentDtoIn commentDtoIn, long userId) {
         User receivedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("user not exist"));
-        Item receivedItem = itemRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("item not exist"));
+        Item receivedItem = itemRepository.findById(userId).orElseThrow(() -> new ItemNotExistException("item not exist"));
 
-       return CommentDtoMapper.toCommentDto(commentRepository.save(new Comment(null,
-                                                                       commentDtoIn.getText(),
-                                                                       receivedItem,
-                                                                       receivedUser,
-                                                                       LocalDateTime.now())));
+        return CommentDtoMapper.toCommentDto(commentRepository.save(new Comment(null,
+                commentDtoIn.getText(),
+                receivedItem,
+                receivedUser,
+                LocalDateTime.now())));
     }
 }
