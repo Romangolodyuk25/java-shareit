@@ -125,12 +125,12 @@ public class ItemServiceImpl implements ItemService {
             List<Booking> lastBookings = bookingRepository.findAllBookingByItemIdForLastBooking(i.getId(), LocalDateTime.now());
             List<Booking> nextBookings = bookingRepository.findAllBookingByItemIdForNextBooking(i.getId(), LocalDateTime.now());
             for (Booking b : lastBookings) {
-                if (i.getId() == b.getItem().getId() && i.getLastBooking() == null) {
+                if (i.getId().equals(b.getItem().getId()) && i.getLastBooking() == null) {
                     i.setLastBooking(BookingDtoMapper.toBookingDtoForItem(b));
                 }
             }
             for (Booking nb : nextBookings) {
-                if (i.getId() == nb.getItem().getId() && i.getNextBooking() == null) {
+                if (i.getId().equals(nb.getItem().getId()) && i.getNextBooking() == null) {
                     i.setNextBooking(BookingDtoMapper.toBookingDtoForItem(nb));
                 }
             }
