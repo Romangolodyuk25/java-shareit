@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.dto.CommentDtoIn;
@@ -18,7 +17,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
-import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,13 +47,13 @@ public class CommentServiceImpl implements CommentService {
 
     private void validated(CommentDtoIn commentDtoIn, User user, Item item) {
         List<Booking> lastBooking = bookingRepository.findAllBookingByUserId(user.getId());
-        if(lastBooking == null || lastBooking.isEmpty()) {
+        if (lastBooking == null || lastBooking.isEmpty()) {
             throw new ValidationException();
         }
         List<Booking> bookingList = lastBooking.stream()
-                    .filter(x -> x.getItem().getId().equals(item.getId()))
+                .filter(x -> x.getItem().getId().equals(item.getId()))
                 .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
-                    .collect(Collectors.toList());
+                .collect(Collectors.toList());
         if (bookingList.isEmpty()) {
             throw new ValidationException();
         }
