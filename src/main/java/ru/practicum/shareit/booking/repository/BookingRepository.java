@@ -13,6 +13,7 @@ import java.util.List;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+
     //для того кто забронировал вещь
     List<Booking> findByBooker_Id(Long bookerId, Sort sort);
 
@@ -22,11 +23,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "order by b.start asc ")
     List<Booking> findAllBookingsForStateCurrent(long userId,  LocalDateTime time);
 
-    List<Booking> findByBooker_IdAndEndIsBefore(Long bookerId, LocalDateTime time, Sort sort);//вместо верхнего
+    List<Booking> findByBooker_IdAndEndIsBefore(Long bookerId, LocalDateTime time, Sort sort);
 
-    List<Booking> findByBooker_IdAndStartIsAfter(Long bookerId, LocalDateTime time, Sort sort);//вместо верхнего
+    List<Booking> findByBooker_IdAndStartIsAfter(Long bookerId, LocalDateTime time, Sort sort);
 
-    List<Booking> findByBooker_IdAndStatus(Long bookerId, Status status, Sort sort);//вместо верхнего
+    List<Booking> findByBooker_IdAndStatus(Long bookerId, Status status, Sort sort);
 
     //для владельца вещей
 
@@ -43,7 +44,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByItem_Owner_IdAndStartIsAfter(Long ownerId, LocalDateTime time, Sort sort);
 
-    List<Booking> findByItem_Owner_IdAndStatus(Long OwnerId, Status status, Sort sort);
+    List<Booking> findByItem_Owner_IdAndStatus(Long ownerId, Status status, Sort sort);
 
     @Query("select b " +
             "from Booking b " +
