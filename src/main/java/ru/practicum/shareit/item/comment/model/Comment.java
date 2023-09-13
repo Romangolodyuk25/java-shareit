@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.comment.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "COMMENTS")
 public class Comment {
@@ -20,7 +22,7 @@ public class Comment {
     @Column(name = "comment_id")
     private Long id;
 
-    @Column(name = "text")
+    @Column(name = "text", length = 255)
     private String text;
 
     @JoinColumn(name = "item_id")
@@ -32,5 +34,5 @@ public class Comment {
     private User author;
 
     @Column(name = "created")
-    private LocalDateTime created;
+    private LocalDateTime created = LocalDateTime.now();
 }

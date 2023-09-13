@@ -38,11 +38,13 @@ public class CommentServiceImpl implements CommentService {
         Item receivedItem = itemRepository.findById(itemId).orElseThrow(() -> new ValidationException("item not exist"));
         validated(commentDtoIn, receivedUser, receivedItem);
 
-        return CommentDtoMapper.toCommentDto(commentRepository.save(new Comment(null,
-                commentDtoIn.getText(),
-                receivedItem,
-                receivedUser,
-                LocalDateTime.now())));
+        return CommentDtoMapper.toCommentDto(commentRepository.save(Comment.builder()
+                .text(commentDtoIn.getText())
+                .item(receivedItem)
+                .author(receivedUser)
+                .created(LocalDateTime.now())
+                .build()
+        ));
     }
 
     private void validated(CommentDtoIn commentDtoIn, User user, Item item) {

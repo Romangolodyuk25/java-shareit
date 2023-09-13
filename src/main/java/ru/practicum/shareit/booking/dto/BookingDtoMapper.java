@@ -30,13 +30,18 @@ public class BookingDtoMapper {
     }
 
     public static Booking toBookingFromBookingIn(BookingDtoIn bookingDtoIn, User booker, Item item) {
-        return new Booking(bookingDtoIn.getId(),
-                bookingDtoIn.getStart(),
-                bookingDtoIn.getEnd(),
-                item,
-                booker,
-                bookingDtoIn.getStatus()
-        );
+        return Booking.builder()
+                .start(bookingDtoIn.getStart())
+                .end(bookingDtoIn.getEnd())
+                .item(item)
+                .booker(booker)
+                .build();
+//                new Booking( //убрал поле у букинга id и отсюда убрал bookingDtoIn.getId()
+//                bookingDtoIn.getStart(),
+//                bookingDtoIn.getEnd(),
+//                item,
+//                booker
+//        );
     }
 
     public static BookingDtoForItem toBookingDtoForItem(Booking booking) {

@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(ItemDto itemDto, long id, long userId) {
         userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("User not exist"));
         Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotExistException("Item not exist"));
-        Item newItem = checkFromUpdate(itemDto, item, id);
+        Item newItem = checkFromUpdate(itemDto, item);
         log.info("Item " + itemDto + " обновлен");
         return ItemDtoMapper.toItemDto(itemRepository.save(newItem), commentRepository.findAllByItem(newItem));
     }
@@ -106,7 +106,7 @@ public class ItemServiceImpl implements ItemService {
         userRepository.findById(userId);
     }
 
-    private Item checkFromUpdate(ItemDto itemDto, Item item, long id) {
+    private Item checkFromUpdate(ItemDto itemDto, Item item) {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }

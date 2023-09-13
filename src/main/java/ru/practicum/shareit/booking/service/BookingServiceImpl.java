@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
@@ -40,6 +41,7 @@ public class BookingServiceImpl implements BookingService {
             throw new IsNotAvailableException("Вещь нельзя забронировать");
         }
         Booking booking = BookingDtoMapper.toBookingFromBookingIn(bookingDtoIn, user, item);
+        booking.setStatus(Status.WAITING);
 
         return BookingDtoMapper.toBookingDto(bookingRepository.save(booking));
     }
@@ -109,71 +111,72 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<BookingDto> getBookingsByState(long userId, String state) {
+        State receivedState = State.from(state)
+                .orElseThrow(() -> new UnsupportedStatusExist("Unknown state: " + state));
         userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("user not exist"));
-        if (state.equals("UNSUPPORTED_STATUS")) {
-            throw new UnsupportedStatusExist("Unknown state: UNSUPPORTED_STATUS");
-        }
-        if (State.valueOf(state).equals(State.WAITING)) {
-            return bookingRepository.findAllBookingsForStateWaiting(userId).stream()
+        Sort sortDesc = Sort.by(Sort.Direction.DESC, "start");
+        if (receivedState.equals(State.WAITING)) {
+            return bookingRepository.findByBooker_IdAndStatus(userId, Status.WAITING, sortDesc).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.valueOf(state).equals(State.CURRENT)) {
+        if (receivedState.equals(State.CURRENT)) {
             return bookingRepository.findAllBookingsForStateCurrent(userId, LocalDateTime.now()).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.valueOf(state).equals(State.PAST)) {
-            return bookingRepository.findAllBookingsForStatePast(userId, LocalDateTime.now()).stream()
+        if (receivedState.equals(State.PAST)) {
+            return bookingRepository.findByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(),sortDesc).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.valueOf(state).equals(State.REJECTED)) {
-            return bookingRepository.findAllBookingsForStateReject(userId).stream()
+        if (receivedState.equals(State.REJECTED)) {
+            return bookingRepository.findByBooker_IdAndStatus(userId, Status.REJECTED, sortDesc).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.valueOf(state).equals(State.FUTURE)) {
-            return bookingRepository.findAllBookingsForStateFuture(userId, LocalDateTime.now()).stream()
+        if (receivedState.equals(State.FUTURE)) {
+            return bookingRepository.findByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(),sortDesc).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        return bookingRepository.findAllBookingsForStateAll(userId).stream()
+        return bookingRepository.findByBooker_Id(userId, sortDesc).stream()
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
-    }
+
+}
 
     private List<BookingDto> getBookingsByStateForOwner(long userId, String state) {
+        State receivedState = State.from(state)
+                .orElseThrow(() -> new UnsupportedStatusExist("Unknown state: " + state));
         userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("user not exist"));
-        if (state.equals("UNSUPPORTED_STATUS")) {
-            throw new UnsupportedStatusExist("Unknown state: UNSUPPORTED_STATUS");
-        }
-        if (State.valueOf(state).equals(State.WAITING)) {
-            return bookingRepository.findAllBookingsForStateWaitingForOwner(userId).stream()
+        Sort sortDesc = Sort.by(Sort.Direction.DESC, "start");
+        if (receivedState.equals(State.WAITING)) {
+            return bookingRepository.findByItem_Owner_IdAndStatus(userId, Status.WAITING, sortDesc).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.valueOf(state).equals(State.CURRENT)) {
+        if (receivedState.equals(State.CURRENT)) {
             return bookingRepository.findAllBookingsForStateCurrentForOwner(userId, LocalDateTime.now()).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.valueOf(state).equals(State.PAST)) {
-            return bookingRepository.findAllBookingsForStatePastForOwner(userId, LocalDateTime.now()).stream()
+        if (receivedState.equals(State.PAST)) {
+            return bookingRepository.findByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), sortDesc).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.valueOf(state).equals(State.REJECTED)) {
-            return bookingRepository.findAllBookingsForStateRejectForOwner(userId).stream()
+        if (receivedState.equals(State.REJECTED)) {
+            return bookingRepository.findByItem_Owner_IdAndStatus(userId, Status.REJECTED, sortDesc).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        if (State.valueOf(state).equals(State.FUTURE)) {
-            return bookingRepository.findAllBookingsForStateFutureForOwner(userId, LocalDateTime.now()).stream()
+        if (receivedState.equals(State.FUTURE)) {
+            return bookingRepository.findByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), sortDesc).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        return bookingRepository.findAllBookingsForStateAllForOwner(userId).stream()
+        return bookingRepository.findByItem_Owner_Id(userId, sortDesc).stream()
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
     }

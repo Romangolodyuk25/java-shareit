@@ -13,7 +13,7 @@ public class CommentDtoMapper {
                 );
     }
 
-    public static Comment toCommentDto(CommentDto commentDto, Item item, User user) {
+    public static Comment toComment(CommentDto commentDto, Item item, User user) {
         return new Comment(commentDto.getId(),
                 commentDto.getText(),
                 item,

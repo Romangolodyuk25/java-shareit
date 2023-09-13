@@ -16,7 +16,7 @@ public class BookingDto {
     private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
-    private Status status = Status.WAITING;
+    private Status status; //по умолчанию Waiting
     private User booker;
     private Item item;
     private String itemName;
