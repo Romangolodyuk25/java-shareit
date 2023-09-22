@@ -8,12 +8,15 @@ import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotExistException;
+import ru.practicum.shareit.exception.ItemRequestNotExist;
 import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -32,14 +35,25 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public ItemDto createItem(ItemDto itemDto, long userId) {
         validationItem(itemDto, userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("User not exist"));
         log.info("Item " + itemDto + " создан");
-        Item newItem = ItemDtoMapper.toItem(itemDto, user);
-        return ItemDtoMapper.toItemDto(itemRepository.save(newItem), commentRepository.findAllByItem(newItem));
+
+        Item newItem;
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow();
+             newItem = ItemDtoMapper.toItem(itemDto, user, itemRequest);
+        } else {
+            newItem = ItemDtoMapper.toItem(itemDto, user, null);
+        }
+
+        ItemDto finalItemDto = ItemDtoMapper.toItemDto(itemRepository.save(newItem), commentRepository.findAllByItem(newItem));
+        log.info("Объект Item " + finalItemDto);
+        return finalItemDto;
     }
 
     @Override
@@ -53,6 +67,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItem(long userId) {
+        //добавить пагинацию
         List<ItemDto> items = itemRepository.findAllByOwnerIdOrderBy(userId).stream()
                 .map(x -> ItemDtoMapper.toItemDto(x, commentRepository.findAllByItem(x)))
                 .collect(Collectors.toList());

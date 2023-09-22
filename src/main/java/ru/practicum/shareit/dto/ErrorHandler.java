@@ -66,6 +66,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleItemRequestException(final ItemRequestNotExist e) {
+        log.error("Запроса не существуе", e);
+        return new ErrorResponse("Запроса не существует", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotOwner(final IsNotOwnerException e) {
         log.error("Юзер не является владельце", e);
         return new ErrorResponse("Юзер не является владельце", e.getMessage());
