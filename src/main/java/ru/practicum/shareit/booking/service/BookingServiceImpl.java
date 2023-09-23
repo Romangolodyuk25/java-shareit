@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -180,5 +183,18 @@ public class BookingServiceImpl implements BookingService {
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
-
+    private Pageable validationForPagination(Integer from, Integer size) {
+        Pageable page;
+        if (from == null || size == null) {
+            throw new ValidationException("Ошибка параметров пагинации");
+        }
+        if (from == 0 && size == 0) {
+            throw new ValidationException("Ошибка параметров пагинации");
+        }
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Ошибка параметров пагинации");
+        }
+        page = PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start"));
+        return page;
+    }
 }

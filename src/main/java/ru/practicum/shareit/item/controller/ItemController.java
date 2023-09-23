@@ -39,12 +39,14 @@ public class ItemController {
     public List<ItemDto> searchItems(@RequestParam String text,
                                      @RequestHeader(value = "X-Sharer-User-Id") long userId
     ) {
-        return itemService.searchItems(text, userId);
+        //return itemService.searchItems(text, userId);
+        return itemService.searchItemsWithPagination(text, userId);
     }
 
     @GetMapping
     public List<ItemDto> getAllItems(@RequestHeader(value = "X-Sharer-User-Id") long userId) {
-        return itemService.getAllItem(userId);
+        //return itemService.getAllItem(userId);
+        return itemService.getAllItemWithPagination(userId);
     }
 
     @GetMapping("/{id}")

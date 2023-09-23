@@ -11,7 +11,7 @@ public interface ItemRequestService {
 
     List<ItemRequestDto> getAllRequestsForOwner(long userId);
 
-    List<ItemRequestDto> getAllRequestsForOtherUser(long userId, Integer from, Integer size) throws ItemRequestNotExist;
+    List<ItemRequestDto> getAllRequestsForOtherUser(long userId, Integer from, Integer size);
 
     ItemRequestDto getRequestById(long userId, long requestId) throws ItemRequestNotExist;
 }

@@ -2,13 +2,16 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotExistException;
-import ru.practicum.shareit.exception.ItemRequestNotExist;
 import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
+    public final static Sort SORT = Sort.by(Sort.Direction.ASC, "id");
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
@@ -81,6 +85,25 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public List<ItemDto> getAllItemWithPagination(long userId) {
+        Pageable page = PageRequest.of(0, 10, SORT);
+        Page<Item> itemPage = itemRepository.findAllByOwnerId(userId, page);
+
+        List<ItemDto> items = itemPage.getContent().stream()
+                .map(x -> ItemDtoMapper.toItemDto(x, commentRepository.findAllByItem(x)))
+                .collect(Collectors.toList());
+
+        if (bookingRepository.findAll().size() != 0) {
+            return updateFromGetAllWithBooking(items);
+        }
+        return itemPage.getContent().stream()
+                .filter(i -> i.getOwner().getId() == userId)
+                .map(x -> ItemDtoMapper.toItemDto(x, commentRepository.findAllByItem(x)))
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
     public ItemDto getItemById(long id, long userId) {
         Item item = itemRepository.findById(id).orElseThrow(() -> new ItemNotExistException("Item not exist"));
         if (bookingRepository.findAll().size() != 0 && item.getOwner().getId() == userId) {
@@ -109,6 +132,20 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         }
         return itemRepository.searchItems(text, userId).stream()
+                .map(x -> ItemDtoMapper.toItemDto(x, commentRepository.findAllByItem(x)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ItemDto> searchItemsWithPagination(String text, long userId) {
+        userRepository.findById(userId).orElseThrow();
+        if (text.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Pageable page = PageRequest.of(0, 10, SORT);
+        Page<Item> itemPage = itemRepository.searchItemsPageable(text, page, userId);
+
+         return itemPage.getContent().stream()
                 .map(x -> ItemDtoMapper.toItemDto(x, commentRepository.findAllByItem(x)))
                 .collect(Collectors.toList());
     }
