@@ -66,7 +66,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Pageable page;
 
         if (from == null || size == null) {
-            page = PageRequest.of(0, 1, SORT);
+            page = PageRequest.of(0, 10, SORT);
         } else {
             page = PageRequest.of(from, size, SORT);
         }

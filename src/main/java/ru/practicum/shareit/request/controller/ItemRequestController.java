@@ -32,7 +32,7 @@ public class ItemRequestController {
     @GetMapping("/all")
     public List<ItemRequestDto> getAllRequestsForOtherUser(@RequestHeader(value = "X-Sharer-User-Id") long userId,
                                                            @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                           @RequestParam(required = false)  Integer size) throws ItemRequestNotExist {
+                                                           @RequestParam(required = false)  Integer size) {
         return itemRequestService.getAllRequestsForOtherUser(userId, from, size);
     }
 

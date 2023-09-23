@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.ItemRequestNotExist;
 
 import java.util.List;
 
@@ -37,13 +38,17 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllBookingsByUserId(@RequestParam(defaultValue = "ALL") String state,
-                                                   @RequestHeader(value = "X-Sharer-User-Id") long userId) {
-        return bookingService.getAllBookingsByUserIdAndState(userId, state);
+                                                   @RequestHeader(value = "X-Sharer-User-Id") long userId,
+                                                   @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                   @RequestParam(required = false)  Integer size) {
+        return bookingService.getAllBookingsByUserIdAndState(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllBookingsForCurrentUser(@RequestParam(defaultValue = "ALL") String state,
-                                                         @RequestHeader(value = "X-Sharer-User-Id") long userId) {
-        return bookingService.getAllBookingsCurrentUser(userId, state);
+                                                         @RequestHeader(value = "X-Sharer-User-Id") long userId,
+                                                         @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                         @RequestParam(required = false)  Integer size) {
+        return bookingService.getAllBookingsCurrentUser(userId, state, from, size);
     }
 }
