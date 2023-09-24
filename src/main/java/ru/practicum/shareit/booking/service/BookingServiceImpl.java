@@ -146,6 +146,7 @@ public class BookingServiceImpl implements BookingService {
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
+
         return bookingRepository.findByBooker_Id(userId, page).stream()
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
@@ -202,7 +203,7 @@ public class BookingServiceImpl implements BookingService {
         if (from < 0 || size < 0) {
             throw new ValidationException("Ошибка параметров пагинации");
         }
-        page = PageRequest.of(from, size, sortDesc);
+        page = PageRequest.of(from / size, size, sortDesc);
         return page;
     }
 }
