@@ -101,7 +101,7 @@ public class ItemRequestServiceImplTest {
 
         ItemRequestDtoIn itemRequestDtoIn2 = new ItemRequestDtoIn();
         itemRequestDtoIn.setDescription("Нужно что-то на чем можно Ездить");
-        ItemRequestDto ItemRequestDto2 = itemRequestService.createRequest(itemRequestDtoIn, userDto2.getId());
+        ItemRequestDto itemRequestDto2 = itemRequestService.createRequest(itemRequestDtoIn, userDto2.getId());
 
         UserDto userDto3 = userService.createUser(UserDto.builder()
                 .name("test")
@@ -113,8 +113,8 @@ public class ItemRequestServiceImplTest {
         assertThat(list.get(1).getCreated(), equalTo(itemRequestDto.getCreated()));
         assertThat(list.get(1).getDescription(), equalTo(itemRequestDto.getDescription()));
 
-        assertThat(list.get(0).getId(), equalTo(ItemRequestDto2.getId()));
-        assertThat(list.get(0).getCreated(), equalTo(ItemRequestDto2.getCreated()));
-        assertThat(list.get(0).getDescription(), equalTo(ItemRequestDto2.getDescription()));
+        assertThat(list.get(0).getId(), equalTo(itemRequestDto2.getId()));
+        assertThat(list.get(0).getCreated(), equalTo(itemRequestDto2.getCreated()));
+        assertThat(list.get(0).getDescription(), equalTo(itemRequestDto2.getDescription()));
     }
 }
