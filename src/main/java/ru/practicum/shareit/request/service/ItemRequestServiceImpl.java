@@ -43,7 +43,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
         ItemRequest itemRequest = ItemRequestMapper.toItemRequestForItemRequestDtoIn(itemRequestDtoIn, user);
 
-        return ItemRequestMapper.toItemRequestDto(itemRequestRepository.save(itemRequest));
+        itemRequest = itemRequestRepository.save(itemRequest);
+        return ItemRequestMapper.toItemRequestDto(itemRequest);
     }
 
     @Override
@@ -121,10 +122,5 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             }
         }
     }
-//    private void validateFromGetAllReq(long userId, Integer from, Integer size) {
-//        if (from == 0 && size == 0) {
-//            throw new ValidationException("Ошибка валидации параметров from и size");
-//        }
-//    }
 
 }

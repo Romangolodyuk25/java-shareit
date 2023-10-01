@@ -37,16 +37,17 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchItems(@RequestParam String text,
-                                     @RequestHeader(value = "X-Sharer-User-Id") long userId
-    ) {
-        //return itemService.searchItems(text, userId);
-        return itemService.searchItemsWithPagination(text, userId);
+                                     @RequestHeader(value = "X-Sharer-User-Id") long userId,
+                                     @RequestParam(required = false, defaultValue = "0") Integer from,
+                                     @RequestParam(required = false, defaultValue = "10")  Integer size) {
+        return itemService.searchItemsWithPagination(text, userId, from, size);
     }
 
     @GetMapping
-    public List<ItemDto> getAllItems(@RequestHeader(value = "X-Sharer-User-Id") long userId) {
-        //return itemService.getAllItem(userId);
-        return itemService.getAllItemWithPagination(userId);
+    public List<ItemDto> getAllItems(@RequestHeader(value = "X-Sharer-User-Id") long userId,
+                                     @RequestParam(required = false, defaultValue = "0") Integer from,
+                                     @RequestParam(required = false, defaultValue = "10")  Integer size) {
+        return itemService.getAllItemWithPagination(userId, from, size);
     }
 
     @GetMapping("/{id}")

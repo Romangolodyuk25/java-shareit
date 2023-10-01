@@ -12,11 +12,11 @@ public interface ItemService {
 
     List<ItemDto> getAllItem(long userId);
 
-    List<ItemDto> getAllItemWithPagination(long userId);
+    List<ItemDto> getAllItemWithPagination(long userId, Integer from, Integer size);
 
     ItemDto getItemById(long id, long userId);
 
     List<ItemDto> searchItems(String text, long userId);
 
-    List<ItemDto> searchItemsWithPagination(String text, long userId);
+    List<ItemDto> searchItemsWithPagination(String text, long userId, Integer from, Integer size);
 }

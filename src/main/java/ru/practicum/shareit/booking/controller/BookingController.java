@@ -40,7 +40,7 @@ public class BookingController {
     public List<BookingDto> getAllBookingsByUserId(@RequestParam(defaultValue = "ALL") String state,
                                                    @RequestHeader(value = "X-Sharer-User-Id") long userId,
                                                    @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                   @RequestParam(required = false)  Integer size) {
+                                                   @RequestParam(required = false, defaultValue = "10")  Integer size) {
         return bookingService.getAllBookingsByUserIdAndState(userId, state, from, size);
     }
 
@@ -48,7 +48,7 @@ public class BookingController {
     public List<BookingDto> getAllBookingsForCurrentUser(@RequestParam(defaultValue = "ALL") String state,
                                                          @RequestHeader(value = "X-Sharer-User-Id") long userId,
                                                          @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                         @RequestParam(required = false)  Integer size) {
+                                                         @RequestParam(required = false, defaultValue = "10")  Integer size) {
         return bookingService.getAllBookingsCurrentUser(userId, state, from, size);
     }
 }
