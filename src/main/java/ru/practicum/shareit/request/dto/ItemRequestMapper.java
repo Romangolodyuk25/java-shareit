@@ -11,7 +11,7 @@ public class ItemRequestMapper {
         return ItemRequestDto.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
-                .created(itemRequest.getCreated()!= null ? itemRequest.getCreated() : LocalDateTime.now())
+                .created(itemRequest.getCreated() != null ? itemRequest.getCreated() : LocalDateTime.now())
                 .items(new ArrayList<>())
                 .build();
 
@@ -28,7 +28,7 @@ public class ItemRequestMapper {
     public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto, User requestor) {
         return ItemRequest.builder()
                 .description(itemRequestDto.getDescription())
-                .created(itemRequestDto.getCreated()!= null ? itemRequestDto.getCreated() : LocalDateTime.now())
+                .created(itemRequestDto.getCreated() != null ? itemRequestDto.getCreated() : LocalDateTime.now())
                 .requestor(requestor)
                 .build();
     }

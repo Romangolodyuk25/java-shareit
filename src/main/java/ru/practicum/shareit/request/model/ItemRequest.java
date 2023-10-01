@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
 @Data

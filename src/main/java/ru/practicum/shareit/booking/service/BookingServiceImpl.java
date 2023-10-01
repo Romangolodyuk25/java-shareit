@@ -189,6 +189,7 @@ public class BookingServiceImpl implements BookingService {
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
+
     private Pageable validationForPagination(Integer from, Integer size) {
         Sort sortDesc = Sort.by(Sort.Direction.DESC, "start");
         Pageable page;

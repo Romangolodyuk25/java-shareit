@@ -111,6 +111,7 @@ public class BookingServiceTest {
                 .status(Status.WAITING)
                 .build();
     }
+
     @Test
     @DisplayName("should create booking")
     void shouldCreateBooking() {

@@ -76,6 +76,7 @@ public class ItemRequestServiceImplTest {
         assertThat(itemRequest.getDescription(), equalTo(ItemRequestDto.getDescription()));
         assertThat(itemRequest.getCreated(), equalTo(ItemRequestDto.getCreated()));
     }
+
     @Test
     @DisplayName("should create itemRequest for owner")
     void shouldCreateItemRequestForOwner() {

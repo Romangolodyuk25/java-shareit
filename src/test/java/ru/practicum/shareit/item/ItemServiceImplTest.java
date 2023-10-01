@@ -81,6 +81,7 @@ public class ItemServiceImplTest {
 
         assertThat(items.size(), equalTo(1));
     }
+
     @Test
     @DisplayName("should update item")
     @Order(value = 3)

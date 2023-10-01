@@ -78,6 +78,7 @@ public class BookingRepositoryTest {
 
         assertThat(bookings.getContent().size(), equalTo(2));
     }
+
     @Test
     @DisplayName("should return booking by booker id and end is before")
     void shouldReturnBookingByBookerIdAndEndIsBefore() {

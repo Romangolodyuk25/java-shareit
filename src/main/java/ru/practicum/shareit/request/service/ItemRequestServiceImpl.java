@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
-    public final static Sort SORT = Sort.by(Sort.Direction.DESC, "created");
+    public Sort sort = Sort.by(Sort.Direction.DESC, "created");
+
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -50,14 +51,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getAllRequestsForOwner(long userId) {
         userRepository.findById(userId).orElseThrow((() -> new UserNotExistObject("Юзера с айди " + userId + " не существует")));
-        List<ItemRequestDto> itemsRequestDto = itemRequestRepository.findByRequestor_Id(userId, SORT).stream()
+        List<ItemRequestDto> itemsRequestDto = itemRequestRepository.findByRequestor_Id(userId, sort).stream()
                 .map(ItemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
         List<ItemDto> itemsDto = itemRepository.findAll().stream()
                 .map(i -> ItemDtoMapper.toItemDto(i, commentRepository.findAllByItem(i)))
                 .collect(Collectors.toList());
 
-     updateForItemsInItemRequest(itemsRequestDto, itemsDto);
+        updateForItemsInItemRequest(itemsRequestDto, itemsDto);
         return itemsRequestDto;
     }
 
@@ -67,9 +68,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         Pageable page;
 
         if (from == null || size == null) {
-            page = PageRequest.of(0, 10, SORT);
+            page = PageRequest.of(0, 10, sort);
         } else {
-            page = PageRequest.of(from, size, SORT);
+            page = PageRequest.of(from, size, sort);
         }
         Page<ItemRequest> itemRequestPage = itemRequestRepository.findByRequestor_IdNot(userId, page);
 
