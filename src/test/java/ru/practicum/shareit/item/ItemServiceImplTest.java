@@ -125,7 +125,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
-        List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", itemDto.getId(), 0, 10);
+        List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", userDto.getId(), 0, 10);
         assertThat(searchItems.size(), equalTo(1));
     }
 

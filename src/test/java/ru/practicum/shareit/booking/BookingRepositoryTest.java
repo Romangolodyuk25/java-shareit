@@ -107,7 +107,7 @@ public class BookingRepositoryTest {
     @DisplayName("should return booking by booker id and status")
     void shouldReturnBookingByBookerIdAndStatus() {
         Pageable page = PageRequest.of(0,10, SORT);
-        Page<Booking> bookings = bookingRepository.findByBooker_IdAndStatus(2L, Status.REJECTED, page);
+        Page<Booking> bookings = bookingRepository.findByBooker_IdAndStatus(booking2.getBooker().getId(), Status.REJECTED, page);
 
         assertThat(bookings.getContent().size(), equalTo(1));
         assertThat(bookings.getContent().get(0).getId(), equalTo(booking2.getId()));
