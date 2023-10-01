@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
-    public final static Sort SORT = Sort.by(Sort.Direction.ASC, "id");
+    public Sort sort = Sort.by(Sort.Direction.ASC, "id");
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
@@ -193,7 +193,7 @@ public class ItemServiceImpl implements ItemService {
     private Pageable validationForPagination(Integer from, Integer size) {
         Pageable page;
         if (from == null || size == null) {
-            page = PageRequest.of(0, 10, SORT);
+            page = PageRequest.of(0, 10, sort);
             return page;
         }
         if (from == 0 && size == 0) {
@@ -202,7 +202,7 @@ public class ItemServiceImpl implements ItemService {
         if (from < 0 || size < 0) {
             throw new ValidationException("Ошибка параметров пагинации");
         }
-        page = PageRequest.of(from / size, size, SORT);
+        page = PageRequest.of(from / size, size, sort);
         return page;
     }
 }

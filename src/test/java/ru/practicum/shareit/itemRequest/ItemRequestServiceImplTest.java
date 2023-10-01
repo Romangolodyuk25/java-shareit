@@ -63,18 +63,18 @@ public class ItemRequestServiceImplTest {
         ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn();
         itemRequestDtoIn.setDescription("Нужно что-то что пилит");
 
-        ItemRequestDto ItemRequestDto = itemRequestService.createRequest(itemRequestDtoIn, userDto2.getId());
+        ItemRequestDto itemRequestDto = itemRequestService.createRequest(itemRequestDtoIn, userDto2.getId());
 
         TypedQuery<ItemRequest> query = em.createQuery("Select i " +
                 "from ItemRequest as i " +
                 "where i.id = :id ", ItemRequest.class);
         ItemRequest itemRequest = query
-                .setParameter("id", ItemRequestDto.getId())
+                .setParameter("id", itemRequestDto.getId())
                 .getSingleResult();
 
         assertThat(itemRequest.getId(), notNullValue());
-        assertThat(itemRequest.getDescription(), equalTo(ItemRequestDto.getDescription()));
-        assertThat(itemRequest.getCreated(), equalTo(ItemRequestDto.getCreated()));
+        assertThat(itemRequest.getDescription(), equalTo(itemRequestDto.getDescription()));
+        assertThat(itemRequest.getCreated(), equalTo(itemRequestDto.getCreated()));
     }
 
     @Test
@@ -83,13 +83,13 @@ public class ItemRequestServiceImplTest {
         ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn();
         itemRequestDtoIn.setDescription("Нужно что-то на чем можно лететь");
 
-        ItemRequestDto ItemRequestDto = itemRequestService.createRequest(itemRequestDtoIn, userDto2.getId());
+        ItemRequestDto itemRequestDto = itemRequestService.createRequest(itemRequestDtoIn, userDto2.getId());
         List<ItemRequestDto> list = itemRequestService.getAllRequestsForOwner(userDto2.getId());
 
         assertThat(list.size(), equalTo(1));
         assertThat(list.get(0).getId(), notNullValue());
-        assertThat(list.get(0).getCreated(), equalTo(ItemRequestDto.getCreated()));
-        assertThat(list.get(0).getDescription(), equalTo(ItemRequestDto.getDescription()));
+        assertThat(list.get(0).getCreated(), equalTo(itemRequestDto.getCreated()));
+        assertThat(list.get(0).getDescription(), equalTo(itemRequestDto.getDescription()));
     }
 
     @Test
@@ -97,7 +97,7 @@ public class ItemRequestServiceImplTest {
     void shouldCreateItemRequestForOtherUser() {
         ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn();
         itemRequestDtoIn.setDescription("Нужно что-то на чем можно лететь");
-        ItemRequestDto ItemRequestDto = itemRequestService.createRequest(itemRequestDtoIn, userDto1.getId());
+        ItemRequestDto itemRequestDto = itemRequestService.createRequest(itemRequestDtoIn, userDto1.getId());
 
         ItemRequestDtoIn itemRequestDtoIn2 = new ItemRequestDtoIn();
         itemRequestDtoIn.setDescription("Нужно что-то на чем можно Ездить");
@@ -109,9 +109,9 @@ public class ItemRequestServiceImplTest {
                 .build());
         List<ItemRequestDto> list = itemRequestService.getAllRequestsForOtherUser(userDto3.getId(),0, 2);
         assertThat(list.size(), equalTo(2));
-        assertThat(list.get(1).getId(), equalTo(ItemRequestDto.getId()));
-        assertThat(list.get(1).getCreated(), equalTo(ItemRequestDto.getCreated()));
-        assertThat(list.get(1).getDescription(), equalTo(ItemRequestDto.getDescription()));
+        assertThat(list.get(1).getId(), equalTo(itemRequestDto.getId()));
+        assertThat(list.get(1).getCreated(), equalTo(itemRequestDto.getCreated()));
+        assertThat(list.get(1).getDescription(), equalTo(itemRequestDto.getDescription()));
 
         assertThat(list.get(0).getId(), equalTo(ItemRequestDto2.getId()));
         assertThat(list.get(0).getCreated(), equalTo(ItemRequestDto2.getCreated()));
