@@ -161,12 +161,12 @@ public class BookingServiceImplTest {
     @DisplayName("Should get all bookings by user id and state ALL")
     void shouldGetAllBookingsByUserIdAndStateAll() {
         BookingDto bookingDto;
-        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(),  LocalDateTime.now().plusHours(1),  LocalDateTime.now().plusDays(5));
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(5));
         bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
         bookingDto.setStatus(Status.WAITING);
 
         BookingDto bookingDto2;
-        BookingDtoIn bookingDtoIn2 = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1),  LocalDateTime.now().plusDays(5));
+        BookingDtoIn bookingDtoIn2 = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(5));
         bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
         bookingDto2.setStatus(Status.REJECTED);
 
@@ -216,7 +216,7 @@ public class BookingServiceImplTest {
         bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
         bookingDto2.setStatus(Status.WAITING);
 
-        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(userDto1.getId(), State.ALL.name(), 0 , 10);
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(userDto1.getId(), State.ALL.name(), 0, 10);
         assertThat(list.size(), equalTo(2));
     }
 
@@ -233,7 +233,7 @@ public class BookingServiceImplTest {
         bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
         bookingDto2.setStatus(Status.WAITING);
 
-        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(userDto2.getId(), State.REJECTED.name(), 0 , 10);
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(userDto2.getId(), State.REJECTED.name(), 0, 10);
         assertThat(list.size(), equalTo(0));
     }
 
@@ -250,7 +250,7 @@ public class BookingServiceImplTest {
         bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
         bookingDto2.setStatus(Status.WAITING);
 
-        assertThrows(UserNotExistObject.class, () -> bookingService.getAllBookingsCurrentUser(9999, State.REJECTED.name(), 0 , 10));
+        assertThrows(UserNotExistObject.class, () -> bookingService.getAllBookingsCurrentUser(9999, State.REJECTED.name(), 0, 10));
     }
 
     @Test
@@ -262,7 +262,7 @@ public class BookingServiceImplTest {
         bookingDto.setStatus(Status.WAITING);
 
         BookingDto bookingDto2;
-        BookingDtoIn bookingDtoIn2 = makeBookingDto(itemDto.getId(), LocalDateTime.now(),  LocalDateTime.now().plusDays(2));
+        BookingDtoIn bookingDtoIn2 = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(2));
         bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
         bookingDto2.setStatus(Status.REJECTED);
 

@@ -99,7 +99,7 @@ public class UserServiceTest {
         when(userRepository.save(any()))
                 .thenThrow(new ValidationException());
 
-        assertThrows(ValidationException.class ,() -> userService.createUser(userDto));
+        assertThrows(ValidationException.class, () -> userService.createUser(userDto));
 
         verify(userRepository, times(1))
                 .save(any());
@@ -113,7 +113,7 @@ public class UserServiceTest {
         when(userRepository.save(any()))
                 .thenThrow(new ValidationException());
 
-        assertThrows(ValidationException.class ,() -> userService.createUser(userDto));
+        assertThrows(ValidationException.class, () -> userService.createUser(userDto));
 
         verify(userRepository, times(1))
                 .save(any());

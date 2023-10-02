@@ -102,7 +102,7 @@ public class ItemServiceImplTest {
                 "from Item i " +
                 "where i.id = :id ", Item.class);
         Item item = query.setParameter("id", itemDto.getId())
-                        .getSingleResult();
+                .getSingleResult();
 
         assertThat(item.getId(), notNullValue());
     }
@@ -114,7 +114,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
-        ItemDto receivedItemDto = itemService.getItemById(itemDto.getId(),userDto.getId());
+        ItemDto receivedItemDto = itemService.getItemById(itemDto.getId(), userDto.getId());
 
         assertThat(itemDto.getId(), equalTo(receivedItemDto.getId()));
         assertThat(itemDto.getName(), equalTo(receivedItemDto.getName()));
@@ -175,7 +175,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
-        assertThrows(ItemNotExistException.class,() -> itemService.getItemById(9999,userDto.getId()));
+        assertThrows(ItemNotExistException.class, () -> itemService.getItemById(9999, userDto.getId()));
 
     }
 
@@ -185,7 +185,7 @@ public class ItemServiceImplTest {
     void shouldReturnNotExistUserForSaveItem() {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
 
-        assertThrows(UserNotExistObject.class,() -> itemService.createItem(itemDto ,9999));
+        assertThrows(UserNotExistObject.class, () -> itemService.createItem(itemDto, 9999));
     }
 
     private ItemDto makeItemDto(String name, String description, Boolean available) {

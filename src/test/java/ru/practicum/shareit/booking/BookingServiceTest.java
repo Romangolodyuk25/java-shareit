@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -146,7 +144,7 @@ public class BookingServiceTest {
         when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(item));
 
-        assertThrows(UserNotExistObject.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+        assertThrows(UserNotExistObject.class, () -> bookingService.createBooking(bookingDtoIn, 2));
 
     }
 
@@ -156,7 +154,7 @@ public class BookingServiceTest {
         when(itemRepository.findById(anyLong()))
                 .thenThrow(new ItemNotExistException("item not exist"));
 
-        assertThrows(ItemNotExistException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+        assertThrows(ItemNotExistException.class, () -> bookingService.createBooking(bookingDtoIn, 2));
     }
 
     @Test
@@ -168,7 +166,7 @@ public class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(item));
 
         bookingDtoIn.setStart(null);
-        assertThrows(ValidationException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, 2));
     }
 
     @Test
@@ -180,7 +178,7 @@ public class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(item));
 
         bookingDtoIn.setStart(LocalDateTime.now().minusDays(1));
-        assertThrows(ValidationException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, 2));
     }
 
     @Test
@@ -193,7 +191,7 @@ public class BookingServiceTest {
 
         bookingDtoIn.setItemId(itemDto.getId());
         bookingDtoIn.setEnd(LocalDateTime.now().minusDays(1));
-        assertThrows(ValidationException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, 2));
     }
 
     @Test
@@ -205,7 +203,7 @@ public class BookingServiceTest {
                 .thenReturn(Optional.ofNullable(item));
 
         bookingDtoIn.setEnd(null);
-        assertThrows(ValidationException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, 2));
     }
 
     @Test
@@ -275,7 +273,7 @@ public class BookingServiceTest {
         when(bookingRepository.findById(3L))
                 .thenThrow(new BookingNotExistException("Брони не существует"));
 
-        assertThrows(BookingNotExistException.class, () -> bookingService.getBookingById(3,1));
+        assertThrows(BookingNotExistException.class, () -> bookingService.getBookingById(3, 1));
     }
 
     @Test
@@ -286,6 +284,6 @@ public class BookingServiceTest {
         when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(item));
 
-        assertThrows(UserIsOwnerException.class , () -> bookingService.createBooking(bookingDtoIn, bookingDto.getId()));
+        assertThrows(UserIsOwnerException.class, () -> bookingService.createBooking(bookingDtoIn, bookingDto.getId()));
     }
 }
