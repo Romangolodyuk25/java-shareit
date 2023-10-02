@@ -13,6 +13,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -20,12 +21,14 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -76,6 +79,52 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    @DisplayName("should throw exception for create booking empty start")
+    void shouldThrowValidateExceptionCreateBookingStartEmpty() {
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), null, LocalDateTime.now().plusDays(1));
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, userDto2.getId()));
+
+    }
+
+    @Test
+    @DisplayName("should throw exception for create booking start is before now")
+    void shouldThrowValidateExceptionCreateBookingStartIsBeforeNow() {
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().minusDays(2), LocalDateTime.now().plusDays(1));
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, userDto2.getId()));
+    }
+
+    @Test
+    @DisplayName("should throw exception for create booking start is equal end")
+    void shouldThrowValidateExceptionCreateBookingStartIsEqualEnd() {
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.of(2024, 5, 10, 10, 0), LocalDateTime.of(2024, 5, 10, 10, 0));
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, userDto2.getId()));
+    }
+
+    @Test
+    @DisplayName("should throw exception for create booking empty end")
+    void shouldThrowValidateExceptionCreateBookingEndEmpty() {
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), null);
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, userDto2.getId()));
+
+    }
+
+    @Test
+    @DisplayName("should throw exception for create booking end is Before now")
+    void shouldThrowValidateExceptionCreateBookingEndIsBeforeNow() {
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().minusDays(1));
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, userDto2.getId()));
+
+    }
+
+    @Test
+    @DisplayName("should throw exception for create booking end is Before start")
+    void shouldThrowValidateExceptionCreateBookingEndIsBeforeStart() {
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now());
+        assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, userDto2.getId()));
+
+    }
+
+    @Test
     @DisplayName("should return all bookings")
     void shouldReturnAllUsers() {
         BookingDtoIn bookingDtoIn = BookingDtoIn.builder()
@@ -86,6 +135,26 @@ public class BookingServiceImplTest {
         bookingService.createBooking(bookingDtoIn, userDto2.getId());
         List<BookingDto> bookingDtoList = bookingService.getAllBookings(userDto2.getId());
         assertThat(bookingDtoList.size(), equalTo(1));
+    }
+
+    @Test
+    @DisplayName("should return empty list for all bookings")
+    void shouldReturnEmptyListForAllUsers() {
+        List<BookingDto> bookingDtoList = bookingService.getAllBookings(userDto2.getId());
+        assertThat(bookingDtoList.size(), equalTo(0));
+    }
+
+    @Test
+    @DisplayName("should return exception for all bookings")
+    void shouldReturnExceptionForAllUsers() {
+        BookingDtoIn bookingDtoIn = BookingDtoIn.builder()
+                .itemId(itemDto.getId())
+                .start(LocalDateTime.now().plusHours(2))
+                .end(LocalDateTime.now().plusDays(2))
+                .build();
+        bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        assertThrows(UserNotExistObject.class, () -> bookingService.getAllBookings(9999));
     }
 
     @Test
@@ -132,6 +201,56 @@ public class BookingServiceImplTest {
         assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));
         assertThat(list.get(0).getStart(), equalTo(bookingDto.getStart()));
         assertThat(list.get(0).getEnd(), equalTo(bookingDto.getEnd()));
+    }
+
+    @Test
+    @DisplayName("Should get all bookings for current user state ALL")
+    void shouldGetAllBookingsForCurrentUserStateAll() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingDto.setStatus(Status.WAITING);
+
+        BookingDto bookingDto2;
+        BookingDtoIn bookingDtoIn2 = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingDto2.setStatus(Status.WAITING);
+
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(userDto1.getId(), State.ALL.name(), 0 , 10);
+        assertThat(list.size(), equalTo(2));
+    }
+
+    @Test
+    @DisplayName("Should get all bookings for current user state canceled")
+    void shouldGetAllBookingsForCurrentUserStateCanceled() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingDto.setStatus(Status.CANCELED);
+
+        BookingDto bookingDto2;
+        BookingDtoIn bookingDtoIn2 = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingDto2.setStatus(Status.WAITING);
+
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(userDto2.getId(), State.REJECTED.name(), 0 , 10);
+        assertThat(list.size(), equalTo(0));
+    }
+
+    @Test
+    @DisplayName("Should get all bookings for current user not exist")
+    void shouldGetAllBookingsForCurrentUserStateUserNotExist() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingDto.setStatus(Status.CANCELED);
+
+        BookingDto bookingDto2;
+        BookingDtoIn bookingDtoIn2 = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingDto2.setStatus(Status.WAITING);
+
+        assertThrows(UserNotExistObject.class, () -> bookingService.getAllBookingsCurrentUser(9999, State.REJECTED.name(), 0 , 10));
     }
 
     @Test

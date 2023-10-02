@@ -9,11 +9,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exception.BookingNotExistException;
+import ru.practicum.shareit.exception.ItemNotExistException;
+import ru.practicum.shareit.exception.UserIsOwnerException;
+import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -21,6 +25,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +33,8 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -133,6 +139,76 @@ public class BookingServiceTest {
     }
 
     @Test
+    @DisplayName("should not create booking if user not exist")
+    void shouldReturnUserNotExistForSaveBooking() {
+        when(userRepository.findById(anyLong()))
+                .thenThrow(new UserNotExistObject("user not exist"));
+        when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(item));
+
+        assertThrows(UserNotExistObject.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+
+    }
+
+    @Test
+    @DisplayName("should not create booking if item not exist")
+    void shouldReturnItemNotExistForSaveBooking() {
+        when(itemRepository.findById(anyLong()))
+                .thenThrow(new ItemNotExistException("item not exist"));
+
+        assertThrows(ItemNotExistException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+    }
+
+    @Test
+    @DisplayName("should return validation exception for save booking")
+    void shouldReturnValidationExceptionForSaveBookingStartIsEmpty() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(item));
+
+        bookingDtoIn.setStart(null);
+        assertThrows(ValidationException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+    }
+
+    @Test
+    @DisplayName("should return validation exception for save booking")
+    void shouldReturnValidationExceptionForSaveBookingStartIsBeforeNow() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(item));
+
+        bookingDtoIn.setStart(LocalDateTime.now().minusDays(1));
+        assertThrows(ValidationException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+    }
+
+    @Test
+    @DisplayName("should return validation exception for save booking")
+    void shouldReturnValidationExceptionForSaveBookingEndIsBeforeNow() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(item));
+
+        bookingDtoIn.setItemId(itemDto.getId());
+        bookingDtoIn.setEnd(LocalDateTime.now().minusDays(1));
+        assertThrows(ValidationException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+    }
+
+    @Test
+    @DisplayName("should return validation exception for save booking")
+    void shouldReturnValidationExceptionForSaveBookingEndIsEmpty() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(item));
+
+        bookingDtoIn.setEnd(null);
+        assertThrows(ValidationException.class , () -> bookingService.createBooking(bookingDtoIn, 2));
+    }
+
+    @Test
     @DisplayName("should get all booking")
     void shouldGetAllBooking() {
         when(userRepository.findById(anyLong()))
@@ -199,6 +275,17 @@ public class BookingServiceTest {
         when(bookingRepository.findById(3L))
                 .thenThrow(new BookingNotExistException("Брони не существует"));
 
-        Assertions.assertThrows(BookingNotExistException.class, () -> bookingService.getBookingById(3,1));
+        assertThrows(BookingNotExistException.class, () -> bookingService.getBookingById(3,1));
+    }
+
+    @Test
+    @DisplayName("should get all bookings by user id and state")
+    void shouldNotGetAllBookingsByUserIdAndState() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+        when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(item));
+
+        assertThrows(UserIsOwnerException.class , () -> bookingService.createBooking(bookingDtoIn, bookingDto.getId()));
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.ItemNotExistException;
+import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.comment.service.CommentService;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -16,6 +18,7 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
+import javax.validation.ValidationException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -89,6 +92,49 @@ public class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("should throw validation exception item for create item")
+    void shouldReturnBadRequestForSaveItem() throws Exception {
+        when(userService.getUserById(anyLong()))
+                .thenReturn(userDto);
+
+        when(itemService.createItem(any(), anyLong()))
+                .thenThrow(new ValidationException());
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HEADER, 1))
+                .andExpect(status().isBadRequest());
+
+        verify(itemService, times(1))
+                .createItem(any(), anyLong());
+    }
+
+    @Test
+    @DisplayName("should throw not exist user exception item for create item")
+    void shouldNotFoundForSaveItem() throws Exception {
+        when(userService.getUserById(anyLong()))
+                .thenReturn(userDto);
+
+        when(itemService.createItem(any(), anyLong()))
+                .thenThrow(new UserNotExistObject("user not found"));
+
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HEADER, 1))
+                .andExpect(status().isNotFound());
+
+        verify(itemService, times(1))
+                .createItem(any(), anyLong());
+    }
+
+
+    @Test
     @DisplayName("should return all items")
     void shouldReturnAllItems() throws Exception {
         when(userService.getUserById(anyLong()))
@@ -142,6 +188,31 @@ public class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("should throw not exist for update item")
+    void shouldThrowExceptionForUpdateWhereHeaderNotExist() throws Exception {
+
+        ItemDto itemDtoFromUpdate = ItemDto.builder()
+                .id(1L)
+                .name("update")
+                .description("updateDescription")
+                .available(false)
+                .build();
+
+        when(itemService.updateItem(any(), anyLong(), anyLong()))
+                .thenThrow(new UserNotExistObject("user not exist"));
+
+        mvc.perform(patch("/items/1").header(HEADER, 1)
+                        .content(mapper.writeValueAsString(itemDtoFromUpdate))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(itemService, times(1))
+                .updateItem(any(), anyLong(), anyLong());
+    }
+
+    @Test
     @DisplayName("should return item by id")
     void shouldReturnItemById() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
@@ -158,4 +229,16 @@ public class ItemControllerTest {
 
     }
 
+    @Test
+    @DisplayName("should return not exist for item by id")
+    void shouldReturnNotExistForItemById() throws Exception {
+        when(itemService.getItemById(anyLong(), anyLong()))
+                .thenThrow(new ItemNotExistException("item not exist"));
+        mvc.perform(get("/items/1").header(HEADER, 1))
+                .andExpect(status().isNotFound());
+
+        verify(itemService, times(1))
+                .getItemById(anyLong(), anyLong());
+
+    }
 }

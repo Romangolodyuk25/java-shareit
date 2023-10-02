@@ -1,6 +1,5 @@
 package ru.practicum.shareit.users;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,12 +11,14 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserServiceImpl;
 
+import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
@@ -89,12 +90,38 @@ public class UserServiceTest {
         verify(userRepository, times(1))
                 .save(any());
 
+    }
+
+    @Test
+    @DisplayName("should throw exception from empty name")
+    void shouldNotSaveUserNameEmpty() {
+        user.setName(null);
+        when(userRepository.save(any()))
+                .thenThrow(new ValidationException());
+
+        assertThrows(ValidationException.class ,() -> userService.createUser(userDto));
+
+        verify(userRepository, times(1))
+                .save(any());
 
     }
 
     @Test
+    @DisplayName("should throw exception from empty email")
+    void shouldNotSaveUserEmailEmpty() {
+        user.setEmail(null);
+        when(userRepository.save(any()))
+                .thenThrow(new ValidationException());
+
+        assertThrows(ValidationException.class ,() -> userService.createUser(userDto));
+
+        verify(userRepository, times(1))
+                .save(any());
+    }
+
+    @Test
     @DisplayName("should return user by id")
-    void shouldReturnUSerById() {
+    void shouldReturnUserById() {
         when(userRepository.save(any()))
                 .thenReturn(user);
         userService.createUser(userDto);
@@ -106,6 +133,20 @@ public class UserServiceTest {
         assertThat(receivedUser.getId(), equalTo(user.getId()));
         assertThat(receivedUser.getName(), equalTo(user.getName()));
         assertThat(receivedUser.getEmail(), equalTo(user.getEmail()));
+    }
+
+    @Test
+    @DisplayName("should return exception for get user by id")
+    void shouldReturnExceptionUserById() {
+        when(userRepository.save(any()))
+                .thenReturn(user);
+        userService.createUser(userDto);
+
+        when(userRepository.findById(anyLong()))
+                .thenThrow(new UserNotExistObject("User not exist"));
+
+        assertThrows(UserNotExistObject.class, () -> userService.getUserById(9999));
+
     }
 
     @Test
@@ -162,6 +203,6 @@ public class UserServiceTest {
         when(userRepository.findById(2L))
                 .thenThrow(new UserNotExistObject("Юзера не существует"));
 
-        Assertions.assertThrows(UserNotExistObject.class, () -> userService.getUserById(2));
+        assertThrows(UserNotExistObject.class, () -> userService.getUserById(2));
     }
 }

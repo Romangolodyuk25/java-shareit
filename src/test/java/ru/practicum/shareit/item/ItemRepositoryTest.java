@@ -56,6 +56,14 @@ public class ItemRepositoryTest {
     }
 
     @Test
+    @DisplayName("should return empty list for find all items by Owner id")
+    void shouldReturnEmptyListForAllByOwnerIdOrderBy() {
+        List<Item> items = itemRepository.findAllByOwnerIdOrderBy(9999);
+
+        assertThat(items.size(), equalTo(0));
+    }
+
+    @Test
     @DisplayName("should find search items")
     void shouldSearchItemsWithPagination() {
         Pageable page = PageRequest.of(0, 1);

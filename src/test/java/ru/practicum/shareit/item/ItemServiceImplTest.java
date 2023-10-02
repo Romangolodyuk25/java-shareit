@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.ItemNotExistException;
+import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -17,12 +19,14 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.validation.ValidationException;
 
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @Transactional
@@ -127,6 +131,61 @@ public class ItemServiceImplTest {
 
         List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", userDto.getId(), 0, 10);
         assertThat(searchItems.size(), equalTo(1));
+    }
+
+    @Test
+    @Order(value = 6)
+    @DisplayName("should throw exception for method save is empty name")
+    void shouldReturnExceptionForEmptyName() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setDescription("Пилит и пилит");
+        itemDto.setAvailable(true);
+
+        assertThrows(ValidationException.class, () -> itemService.createItem(itemDto, userDto.getId()));
+
+    }
+
+    @Test
+    @Order(value = 7)
+    @DisplayName("should throw exception for method save is empty description")
+    void shouldReturnExceptionForEmptyDescription() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Пилa");
+        itemDto.setAvailable(true);
+
+        assertThrows(ValidationException.class, () -> itemService.createItem(itemDto, userDto.getId()));
+
+    }
+
+    @Test
+    @DisplayName("should search empty list item")
+    @Order(value = 8)
+    void shouldSearchItemEmptyList() {
+        ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
+        itemDto = itemService.createItem(itemDto, userDto.getId());
+
+        List<ItemDto> searchItems = itemService.searchItemsWithPagination("Дрель", userDto.getId(), 0, 10);
+        assertThat(searchItems.size(), equalTo(0));
+    }
+
+    @Test
+    @DisplayName("should return not exist item for get item by id")
+    @Order(value = 9)
+    void shouldReturnNotExistItemForGetItemById() {
+        ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
+        itemDto = itemService.createItem(itemDto, userDto.getId());
+
+        assertThrows(ItemNotExistException.class,() -> itemService.getItemById(9999,userDto.getId()));
+
+    }
+
+    @Test
+    @DisplayName("should return not exist user for save item")
+    @Order(value = 10)
+    void shouldReturnNotExistUserForSaveItem() {
+        ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
+
+        assertThrows(UserNotExistObject.class,() -> itemService.createItem(itemDto ,9999));
     }
 
     private ItemDto makeItemDto(String name, String description, Boolean available) {

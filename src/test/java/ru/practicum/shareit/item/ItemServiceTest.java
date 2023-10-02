@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +10,7 @@ import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotExistException;
+import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -23,11 +23,13 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -116,6 +118,28 @@ public class ItemServiceTest {
     }
 
     @Test
+    @DisplayName("should not create item but user not exist")
+    void shouldReturnExceptionForUserNotExist() {
+        when(userRepository.findById(anyLong()))
+                .thenThrow(new UserNotExistObject("user not exist"));
+
+        assertThrows(UserNotExistObject.class, () -> itemService.createItem(itemDto, 99999));
+
+    }
+
+    @Test
+    @DisplayName("should throw exception from create item is empty name or description")
+    void shouldThrowExceptionEmptyNameOrDescription() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+
+        when(itemRepository.save(any()))
+                .thenThrow(new ValidationException());
+
+        assertThrows(ValidationException.class, () -> itemService.createItem(itemDto, user.getId()));
+    }
+
+    @Test
     @DisplayName("should find all item")
     void shouldFindAllItem() {
         when(userRepository.findById(anyLong()))
@@ -176,7 +200,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    @DisplayName("should search Item with pagination")
+    @DisplayName("should search item with pagination")
     void shouldSearchItemsWithPagination() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(user));
@@ -222,6 +246,22 @@ public class ItemServiceTest {
     }
 
     @Test
+    @DisplayName("should find item by Id not exist item")
+    void shouldReturnExceptionFromItemByIdNotExistItem() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+        when(itemRepository.save(any()))
+                .thenReturn(item);
+        itemService.createItem(itemDto, 1L);
+
+        when(itemRepository.findById(anyLong()))
+                .thenThrow(new ItemNotExistException("item not exist"));
+
+        assertThrows(ItemNotExistException.class, () -> itemService.getItemById(9999, user.getId()));
+
+    }
+
+    @Test
     @DisplayName("should throw exception at find item by Id")
     void shouldThrowAtReturnItemById() {
         when(userRepository.findById(anyLong()))
@@ -233,6 +273,6 @@ public class ItemServiceTest {
         when(itemRepository.findById(2L))
                 .thenThrow(new ItemNotExistException("Вещи не существует"));
 
-        Assertions.assertThrows(ItemNotExistException.class, () -> itemService.getItemById(2,1));
+        assertThrows(ItemNotExistException.class, () -> itemService.getItemById(2,1));
     }
 }
