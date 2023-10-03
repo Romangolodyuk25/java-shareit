@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -21,6 +22,7 @@ import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
+import javax.validation.ValidationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -114,6 +116,63 @@ public class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("should not save booking")
+    void shouldReturnNotFoundForSaveBookingUserNotExist() throws Exception {
+
+        when(bookingService.createBooking(any(), anyLong()))
+                .thenThrow(new UserNotExistObject("user not exist"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HEADER, 100))
+                .andExpect(status().isNotFound());
+
+        verify(bookingService, times(1))
+                .createBooking(any(), anyLong());
+    }
+
+    @Test
+    @DisplayName("should not save booking")
+    void shouldReturnNotFoundForSaveBookingItemNotExist() throws Exception {
+
+        when(bookingService.createBooking(any(), anyLong()))
+                .thenThrow(new ItemNotExistException("item not exist"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HEADER, 100))
+                .andExpect(status().isNotFound());
+
+        verify(bookingService, times(1))
+                .createBooking(any(), anyLong());
+    }
+
+    @Test
+    @DisplayName("should not save booking validation")
+    void shouldReturnValidationExceptionForSaveBooking() throws Exception {
+
+        when(bookingService.createBooking(any(), anyLong()))
+                .thenThrow(new ValidationException("validation"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HEADER, 100))
+                .andExpect(status().isBadRequest());
+
+        verify(bookingService, times(1))
+                .createBooking(any(), anyLong());
+    }
+
+    @Test
     @DisplayName("should return all bookings by user Id")
     void shouldReturnAllBookingsByUserId() throws Exception {
         when(userService.getUserById(anyLong()))
@@ -174,6 +233,101 @@ public class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("should not update booking user not owner")
+    void shouldReturnUserNotOwner() throws Exception {
+        when(userService.getUserById(anyLong()))
+                .thenReturn(UserDtoMapper.toUserDto(user));
+
+        when(bookingService.getBookingById(anyLong(), anyLong()))
+                .thenReturn(bookingDto);
+
+        BookingDto bookingDtoFromUpdate = BookingDto.builder()
+                .id(1L)
+                .start(LocalDateTime.now().plusHours(10))
+                .end(LocalDateTime.now().plusDays(12))
+                .booker(user)
+                .item(item)
+                .status(Status.WAITING)
+                .build();
+
+        when(bookingService.updateBooking(anyLong(), anyBoolean(), anyLong()))
+                .thenThrow(new IsNotOwnerException("user is not owner"));
+
+        mvc.perform(patch("/bookings/1").param("approved", "true").header(HEADER, 1)
+                        .content(mapper.writeValueAsString(bookingDtoFromUpdate))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(bookingService, times(1))
+                .updateBooking(anyLong(), anyBoolean(), anyLong());
+    }
+
+    @Test
+    @DisplayName("should not update booking status already approved")
+    void shouldReturnStatusAlreadyApproved() throws Exception {
+        when(userService.getUserById(anyLong()))
+                .thenReturn(UserDtoMapper.toUserDto(user));
+
+        when(bookingService.getBookingById(anyLong(), anyLong()))
+                .thenReturn(bookingDto);
+
+        BookingDto bookingDtoFromUpdate = BookingDto.builder()
+                .id(1L)
+                .start(LocalDateTime.now().plusHours(10))
+                .end(LocalDateTime.now().plusDays(12))
+                .booker(user)
+                .item(item)
+                .status(Status.APPROVED)
+                .build();
+
+        when(bookingService.updateBooking(anyLong(), anyBoolean(), anyLong()))
+                .thenThrow(new StatusAlreadyApprovedException("Status already approved"));
+
+        mvc.perform(patch("/bookings/1").param("approved", "true").header(HEADER, 1)
+                        .content(mapper.writeValueAsString(bookingDtoFromUpdate))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        verify(bookingService, times(1))
+                .updateBooking(anyLong(), anyBoolean(), anyLong());
+    }
+
+    @Test
+    @DisplayName("should not update booking unsupported status")
+    void shouldReturnUnsupportedException() throws Exception {
+        when(userService.getUserById(anyLong()))
+                .thenReturn(UserDtoMapper.toUserDto(user));
+
+        when(bookingService.getBookingById(anyLong(), anyLong()))
+                .thenReturn(bookingDto);
+
+        BookingDto bookingDtoFromUpdate = BookingDto.builder()
+                .id(1L)
+                .start(LocalDateTime.now().plusHours(10))
+                .end(LocalDateTime.now().plusDays(12))
+                .booker(user)
+                .item(item)
+                .build();
+
+        when(bookingService.updateBooking(anyLong(), anyBoolean(), anyLong()))
+                .thenThrow(new UnsupportedStatusExist("unsupported status"));
+
+        mvc.perform(patch("/bookings/1").param("approved", "true").header(HEADER, 1)
+                        .content(mapper.writeValueAsString(bookingDtoFromUpdate))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError());
+
+        verify(bookingService, times(1))
+                .updateBooking(anyLong(), anyBoolean(), anyLong());
+    }
+
+    @Test
     @DisplayName("should return booking by id")
     void shouldReturnBookingById() throws Exception {
         when(userService.getUserById(anyLong()))
@@ -190,6 +344,22 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.status", is(bookingDto.getStatus().name())))
                 .andExpect(jsonPath("$.booker.id", is(bookingDto.getBooker().getId().intValue())))
                 .andExpect(jsonPath("$.item.id", is(bookingDto.getItem().getId().intValue())));
+
+        verify(bookingService, times(1))
+                .getBookingById(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("should return not exist booking by id")
+    void shouldReturnNotExistBookingById() throws Exception {
+        when(userService.getUserById(anyLong()))
+                .thenReturn(UserDtoMapper.toUserDto(user));
+
+        when(bookingService.getBookingById(anyLong(), anyLong()))
+                .thenThrow(new BookingNotExistException("booking not exist"));
+
+        mvc.perform(get("/bookings/1").header(HEADER, 1))
+                .andExpect(status().isNotFound());
 
         verify(bookingService, times(1))
                 .getBookingById(anyLong(), anyLong());
