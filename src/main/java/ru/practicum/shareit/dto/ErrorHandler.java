@@ -51,11 +51,6 @@ public class ErrorHandler {
         return new ErrorResponse("Вещи не существуе", e.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotOwner(final NotOwnerException e) {
-        return new ErrorResponse("Юзер не является владельцем вещи", e.getMessage());
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -75,7 +70,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotOwner(final IsNotOwnerException e) {
         log.error("Юзер не является владельце", e);
-        return new ErrorResponse("Юзер не является владельце", e.getMessage());
+        return new ErrorResponse("Юзер не является владельцем", e.getMessage());
     }
 
     @ExceptionHandler

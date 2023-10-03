@@ -13,7 +13,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.UserNotExistObject;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -43,6 +43,7 @@ public class BookingServiceImplTest {
     UserDto userDto2;
 
     ItemDto itemDto;
+    ItemDto itemDto2;
 
     @BeforeEach
     public void beforeEach() {
@@ -59,6 +60,13 @@ public class BookingServiceImplTest {
                 .description("Что-то пилит")
                 .available(true)
                 .build(), userDto1.getId());
+
+        itemDto2 = itemService.createItem(ItemDto.builder()
+                .name("Молоток")
+                .description("Что-то стучит")
+                .available(false)
+                .build(), userDto1.getId());
+
     }
 
     @Test
@@ -79,11 +87,72 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    @DisplayName("should throw user is owner exception booking")
+    void shouldThrowExceptionUserIsOwnerBooking() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1));
+        assertThrows(UserIsOwnerException.class, () -> bookingService.createBooking(bookingDtoIn, userDto1.getId()));
+    }
+
+    @Test
+    @DisplayName("should update booking")
+    void shouldUpdateBooking() {
+        ItemDto itemDto3 = itemService.createItem(ItemDto.builder()
+                .name("Дрель")
+                .description("Что-то сверлит")
+                .available(true)
+                .build(), userDto1.getId());
+
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto3.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        BookingDto updateBooking = bookingService.updateBooking(bookingDto.getId(), true, userDto1.getId());
+        assertThat(updateBooking.getStatus().name(), equalTo(Status.APPROVED.name()));
+    }
+
+    @Test
+    @DisplayName("should throw exception status already exist update booking")
+    void shouldThrowStatusAlreadyExistUpdateBooking() {
+        ItemDto itemDto3 = itemService.createItem(ItemDto.builder()
+                .name("Дрель")
+                .description("Что-то сверлит")
+                .available(true)
+                .build(), userDto1.getId());
+
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto3.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        BookingDto updateBooking = bookingService.updateBooking(bookingDto.getId(), true, userDto1.getId());
+        assertThat(updateBooking.getStatus().name(), equalTo(Status.APPROVED.name()));
+
+        assertThrows(StatusAlreadyApprovedException.class,() -> bookingService.updateBooking(bookingDto.getId(), true, userDto1.getId()));
+    }
+
+    @Test
+    @DisplayName("should throw is not owner exception for update booking")
+    void shouldThrowIsNotOwnerExceptionForUpdateBooking() {
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1));
+        BookingDto bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        assertThrows(IsNotOwnerException.class, () -> bookingService.updateBooking(bookingDto.getId(), true, userDto2.getId()));
+
+    }
+
+    @Test
+    @DisplayName("should throw exception for create booking item available false")
+    void shouldThrowValidateExceptionCreateBookingItemAvailable() {
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto2.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1));
+
+        assertThrows(IsNotAvailableException.class, () -> bookingService.createBooking(bookingDtoIn, userDto2.getId()));
+    }
+
+    @Test
     @DisplayName("should throw exception for create booking empty start")
     void shouldThrowValidateExceptionCreateBookingStartEmpty() {
         BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), null, LocalDateTime.now().plusDays(1));
         assertThrows(ValidationException.class, () -> bookingService.createBooking(bookingDtoIn, userDto2.getId()));
-
     }
 
     @Test
@@ -183,6 +252,23 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    @DisplayName("Should return unsupported exception for ")
+    void shouldReturnUnsupportedExceptionForStateAll() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(5));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingDto.setStatus(Status.WAITING);
+
+        BookingDto bookingDto2;
+        BookingDtoIn bookingDtoIn2 = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(5));
+        bookingDto2 = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingDto2.setStatus(Status.REJECTED);
+
+        assertThrows(UnsupportedStatusExist.class, () -> bookingService.getAllBookingsByUserIdAndState(userDto2.getId(), "UNSUPPORTED STATUS", 0, 2));
+
+    }
+
+    @Test
     @DisplayName("Should get all bookings by user id and state CURRENT")
     void shouldGetAllBookingsByUserIdAndStateCurrent() {
         BookingDto bookingDto;
@@ -274,7 +360,6 @@ public class BookingServiceImplTest {
         assertThat(list.get(0).getEnd(), equalTo(bookingDto.getEnd()));
 
     }
-
     private BookingDtoIn makeBookingDto(Long id, LocalDateTime start, LocalDateTime end) {
         return BookingDtoIn.builder()
                 .itemId(id)
