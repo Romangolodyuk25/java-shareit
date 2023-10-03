@@ -117,4 +117,5 @@ public class ItemRequestServiceImplTest {
         assertThat(list.get(0).getCreated(), equalTo(itemRequestDto2.getCreated()));
         assertThat(list.get(0).getDescription(), equalTo(itemRequestDto2.getDescription()));
     }
+
 }

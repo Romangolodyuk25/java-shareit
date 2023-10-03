@@ -8,15 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
+import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
@@ -45,6 +50,9 @@ public class BookingServiceImplTest {
     ItemDto itemDto;
     ItemDto itemDto2;
 
+    Booking booking;
+    ItemRequest itemRequest;
+
     @BeforeEach
     public void beforeEach() {
         userDto1 = userService.createUser(UserDto.builder()
@@ -66,6 +74,22 @@ public class BookingServiceImplTest {
                 .description("Что-то стучит")
                 .available(false)
                 .build(), userDto1.getId());
+
+        itemRequest = ItemRequest.builder()
+                .id(1L)
+                .description("Запрос")
+                .created(LocalDateTime.now())
+                .requestor(UserDtoMapper.toUser(userDto2))
+                .build();
+
+        booking = Booking.builder()
+                .id(1L)
+                .item(ItemDtoMapper.toItem(itemDto, UserDtoMapper.toUser(userDto1),itemRequest))
+                .booker(UserDtoMapper.toUser(userDto2))
+                .status(Status.WAITING)
+                .start(LocalDateTime.now().plusHours(1))
+                .end(LocalDateTime.now().plusDays(1))
+                .build();
 
     }
 
@@ -321,6 +345,15 @@ public class BookingServiceImplTest {
 
         List<BookingDto> list = bookingService.getAllBookingsCurrentUser(userDto2.getId(), State.REJECTED.name(), 0, 10);
         assertThat(list.size(), equalTo(0));
+    }
+
+    @Test
+    void shouldMappingToBookingDto() {
+        BookingDtoForItem bookingDtoForItem = BookingDtoMapper.toBookingDtoForItem(booking);
+        assertThat(bookingDtoForItem.getId(), notNullValue());
+        assertThat(bookingDtoForItem.getStart(), equalTo(booking.getStart()));
+        assertThat(bookingDtoForItem.getEnd(), equalTo(booking.getEnd()));
+        assertThat(bookingDtoForItem.getBookerId(), equalTo(booking.getBooker().getId()));
     }
 
     @Test

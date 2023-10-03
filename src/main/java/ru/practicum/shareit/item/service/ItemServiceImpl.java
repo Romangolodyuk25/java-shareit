@@ -125,17 +125,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItems(String text, long userId) {
-        userRepository.findById(userId).orElseThrow();
-        if (text.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return itemRepository.searchItems(text, userId).stream()
-                .map(x -> ItemDtoMapper.toItemDto(x, commentRepository.findAllByItem(x)))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<ItemDto> searchItemsWithPagination(String text, long userId, Integer from, Integer size) {
         userRepository.findById(userId).orElseThrow();
         if (text.isEmpty()) {

@@ -14,6 +14,7 @@ import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoForItemRequest;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
@@ -32,6 +33,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static ru.practicum.shareit.item.dto.ItemDtoMapper.toItemDtoFroRequest;
 
 @ExtendWith(MockitoExtension.class)
 public class ItemServiceTest {
@@ -118,6 +120,15 @@ public class ItemServiceTest {
     }
 
     @Test
+    void shouldMappingItemDtoForItemRequest() {
+       ItemDtoForItemRequest item1 = toItemDtoFroRequest(itemDto);
+       assertThat(item1.getId(), equalTo(itemDto.getId()));
+       assertThat(item1.getAvailable(), equalTo(itemDto.getAvailable()));
+       assertThat(item1.getRequestId(), equalTo(itemDto.getRequestId()));
+       assertThat(item1.getName(), equalTo(itemDto.getName()));
+    }
+
+    @Test
     @DisplayName("should not create item but user not exist")
     void shouldReturnExceptionForUserNotExist() {
         when(userRepository.findById(anyLong()))
@@ -197,6 +208,7 @@ public class ItemServiceTest {
                 .findAllByOwnerId(1L, page);
         verify(itemRepository, Mockito.times(1))
                 .save(item);
+
     }
 
     @Test

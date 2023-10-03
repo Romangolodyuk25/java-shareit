@@ -10,7 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.dto.CommentDtoIn;
+import ru.practicum.shareit.item.comment.dto.CommentDtoMapper;
+import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.service.CommentService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
@@ -18,6 +21,7 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
@@ -98,6 +102,12 @@ public class CommentServiceImplTest {
     @DisplayName("should create comment validation booking")
     void shouldNotValidationBookingCreateComment() {
         CommentDtoIn commentDtoIn = new CommentDtoIn("CommentTest");
+        CommentDto commentDto = CommentDtoMapper.toCommentDto(Comment.builder()
+                .id(1L)
+                .created(LocalDateTime.now())
+                .author(UserDtoMapper.toUser(userDto))
+                .text("text")
+                        .build());
 
         assertThrows(ValidationException.class, () -> commentService.createComment(itemDto.getId(), commentDtoIn, userDto2.getId()));
     }
