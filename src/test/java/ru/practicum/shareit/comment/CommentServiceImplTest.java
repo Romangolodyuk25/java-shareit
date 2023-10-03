@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.dto.CommentDtoIn;
 import ru.practicum.shareit.item.comment.service.CommentService;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -26,9 +25,6 @@ import javax.validation.ValidationException;
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
@@ -105,15 +101,4 @@ public class CommentServiceImplTest {
 
         assertThrows(ValidationException.class, () -> commentService.createComment(itemDto.getId(), commentDtoIn, userDto2.getId()));
     }
-
-//    @Test
-//    @DisplayName("should create comment")
-//    void shouldCreateComment() {
-//        CommentDtoIn commentDtoIn = new CommentDtoIn("CommentTest");
-//
-//        CommentDto commentDto = commentService.createComment(itemDto.getId(), commentDtoIn, userDto2.getId());
-//        assertThat(commentDto.getId(), notNullValue());
-//        assertThat(commentDto.getText(), equalTo(commentDto.getText()));
-//        assertThat(commentDto.getAuthorName(), equalTo(userDto2.getName()));
-//    }
 }

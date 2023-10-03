@@ -127,7 +127,7 @@ public class BookingServiceImplTest {
         BookingDto updateBooking = bookingService.updateBooking(bookingDto.getId(), true, userDto1.getId());
         assertThat(updateBooking.getStatus().name(), equalTo(Status.APPROVED.name()));
 
-        assertThrows(StatusAlreadyApprovedException.class,() -> bookingService.updateBooking(bookingDto.getId(), true, userDto1.getId()));
+        assertThrows(StatusAlreadyApprovedException.class, () -> bookingService.updateBooking(bookingDto.getId(), true, userDto1.getId()));
     }
 
     @Test
@@ -360,6 +360,7 @@ public class BookingServiceImplTest {
         assertThat(list.get(0).getEnd(), equalTo(bookingDto.getEnd()));
 
     }
+
     private BookingDtoIn makeBookingDto(Long id, LocalDateTime start, LocalDateTime end) {
         return BookingDtoIn.builder()
                 .itemId(id)
