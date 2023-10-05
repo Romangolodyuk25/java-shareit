@@ -2,9 +2,7 @@ package ru.practicum.shareit.item;
 
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +12,11 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
+
 import javax.persistence.TypedQuery;
 import javax.validation.ValidationException;
 
@@ -38,16 +38,34 @@ public class ItemServiceImplTest {
     private final ItemService itemService;
     private final UserService userService;
 
+    private UserDto userDto;
+    private User user;
+
+    @BeforeEach
+    void beforeEach() {
+        userDto = UserDto.builder()
+                .name("Vanya")
+                .email("vanya@mail.ru")
+                .build();
+
+        User userFromCreate = new User();
+        userFromCreate.setName("Vanya");
+        userFromCreate.setEmail("vanya@mail.ru");
+        em.persist(userFromCreate);
+
+        TypedQuery<User> query = em.createQuery("Select u " +
+                "from User u " +
+                "where u.email = :email ", User.class);
+         user = query
+                .setParameter("email", userDto.getEmail())
+                 .getSingleResult();
+    }
+
     @Test
     @Order(value = 1)
     void saveItem() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
-        itemDto = itemService.createItem(itemDto, userDto.getId());
+        itemDto = itemService.createItem(itemDto, user.getId());
 
         TypedQuery<Item> query = em.createQuery("Select i " +
                 "from Item i " +
@@ -66,13 +84,8 @@ public class ItemServiceImplTest {
     @DisplayName("should return all items")
     @Order(value = 2)
     void shouldReturnAllItems() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
-        itemDto = itemService.createItem(itemDto, userDto.getId());
+        itemDto = itemService.createItem(itemDto, user.getId());
 
         TypedQuery<Item> query = em.createQuery("Select i " +
                 "from Item i " +
@@ -88,18 +101,13 @@ public class ItemServiceImplTest {
     @DisplayName("should update item")
     @Order(value = 3)
     void shouldUpdateItem() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
-        itemDto = itemService.createItem(itemDto, userDto.getId());
+        itemDto = itemService.createItem(itemDto, user.getId());
 
         ItemDto receivedItemDto = new ItemDto();
         receivedItemDto.setName("Молоток");
         receivedItemDto.setDescription("Стучит");
-        itemService.updateItem(itemDto, itemDto.getId(), userDto.getId());
+        itemService.updateItem(itemDto, itemDto.getId(), user.getId());
 
         TypedQuery<Item> query = em.createQuery("Select i " +
                 "from Item i " +
@@ -114,15 +122,10 @@ public class ItemServiceImplTest {
     @DisplayName("should get item by id")
     @Order(value = 4)
     void shouldGetItemById() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
-        itemDto = itemService.createItem(itemDto, userDto.getId());
+        itemDto = itemService.createItem(itemDto, user.getId());
 
-        ItemDto receivedItemDto = itemService.getItemById(itemDto.getId(), userDto.getId());
+        ItemDto receivedItemDto = itemService.getItemById(itemDto.getId(), user.getId());
 
         assertThat(itemDto.getId(), equalTo(receivedItemDto.getId()));
         assertThat(itemDto.getName(), equalTo(receivedItemDto.getName()));
@@ -134,15 +137,10 @@ public class ItemServiceImplTest {
     @DisplayName("should search item")
     @Order(value = 5)
     void shouldSearchItem() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
-        itemDto = itemService.createItem(itemDto, userDto.getId());
+        itemDto = itemService.createItem(itemDto, user.getId());
 
-        List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", userDto.getId(), 0, 10);
+        List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), 0, 10);
         assertThat(searchItems.size(), equalTo(1));
     }
 
@@ -150,16 +148,11 @@ public class ItemServiceImplTest {
     @Order(value = 6)
     @DisplayName("should throw exception for method save is empty name")
     void shouldReturnExceptionForEmptyName() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = new ItemDto();
         itemDto.setDescription("Пилит и пилит");
         itemDto.setAvailable(true);
 
-        assertThrows(ValidationException.class, () -> itemService.createItem(itemDto, userDto.getId()));
+        assertThrows(ValidationException.class, () -> itemService.createItem(itemDto, user.getId()));
 
     }
 
@@ -167,16 +160,11 @@ public class ItemServiceImplTest {
     @Order(value = 7)
     @DisplayName("should throw exception for method save is empty description")
     void shouldReturnExceptionForEmptyDescription() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = new ItemDto();
         itemDto.setName("Пилa");
         itemDto.setAvailable(true);
 
-        assertThrows(ValidationException.class, () -> itemService.createItem(itemDto, userDto.getId()));
+        assertThrows(ValidationException.class, () -> itemService.createItem(itemDto, user.getId()));
 
     }
 
@@ -184,15 +172,10 @@ public class ItemServiceImplTest {
     @DisplayName("should search empty list item")
     @Order(value = 8)
     void shouldSearchItemEmptyList() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
-        itemDto = itemService.createItem(itemDto, userDto.getId());
+        itemDto = itemService.createItem(itemDto, user.getId());
 
-        List<ItemDto> searchItems = itemService.searchItemsWithPagination("Дрель", userDto.getId(), 0, 10);
+        List<ItemDto> searchItems = itemService.searchItemsWithPagination("Дрель", user.getId(), 0, 10);
         assertThat(searchItems.size(), equalTo(0));
     }
 
@@ -200,15 +183,10 @@ public class ItemServiceImplTest {
     @DisplayName("should return not exist item for get item by id")
     @Order(value = 9)
     void shouldReturnNotExistItemForGetItemById() {
-        UserDto userDto = userService.createUser(UserDto.builder()
-                .name("Vanya")
-                .email("vanya@email.ru")
-                .build()
-        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
-        itemDto = itemService.createItem(itemDto, userDto.getId());
+        itemDto = itemService.createItem(itemDto, user.getId());
 
-        assertThrows(ItemNotExistException.class, () -> itemService.getItemById(9999, userDto.getId()));
+        assertThrows(ItemNotExistException.class, () -> itemService.getItemById(9999, user.getId()));
 
     }
 
@@ -216,7 +194,6 @@ public class ItemServiceImplTest {
     @DisplayName("should return not exist user for save item")
     @Order(value = 10)
     void shouldReturnNotExistUserForSaveItem() {
-
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
 
         assertThrows(UserNotExistObject.class, () -> itemService.createItem(itemDto, 9999));
