@@ -138,7 +138,7 @@ public class ItemRequestServiceImplTest {
                 .name("test")
                 .email("test3@mail.ru")
                 .build());
-        List<ItemRequestDto> list = itemRequestService.getAllRequestsForOtherUser(userDto3.getId(),0, 2);
+        List<ItemRequestDto> list = itemRequestService.getAllRequestsForOtherUser(userDto3.getId(), 0, 2);
         assertThat(list.size(), equalTo(2));
         assertThat(list.get(1).getId(), equalTo(itemRequestDto.getId()));
         assertThat(list.get(1).getCreated(), equalTo(itemRequestDto.getCreated()));
