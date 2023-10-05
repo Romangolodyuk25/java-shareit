@@ -39,7 +39,7 @@ public class ItemServiceImplTest {
     private final ItemService itemService;
     private final UserService userService;
 
-    UserDto userDto;
+    private UserDto userDto;
 
     @BeforeEach
     void beforeEach() {
