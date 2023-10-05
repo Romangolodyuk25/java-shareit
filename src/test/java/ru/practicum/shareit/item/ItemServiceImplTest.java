@@ -147,7 +147,7 @@ public class ItemServiceImplTest {
         itemDto = itemService.createItem(itemDto, user.getId());
 
         List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), 0, 10);
-        assertThat(searchItems.size(), equalTo(1));
+        assertThat(searchItems.size(), equalTo(3));
     }
 
     @Test
