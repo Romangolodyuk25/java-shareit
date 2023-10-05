@@ -50,7 +50,7 @@ public class ItemServiceImpl implements ItemService {
         Item newItem;
         if (itemDto.getRequestId() != null) {
             ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow();
-             newItem = ItemDtoMapper.toItem(itemDto, user, itemRequest);
+            newItem = ItemDtoMapper.toItem(itemDto, user, itemRequest);
         } else {
             newItem = ItemDtoMapper.toItem(itemDto, user, null);
         }
@@ -133,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
         Pageable page = validationForPagination(from, size);
         Page<Item> itemPage = itemRepository.searchItemsPageable(text, page, userId);
 
-         return itemPage.getContent().stream()
+        return itemPage.getContent().stream()
                 .map(x -> ItemDtoMapper.toItemDto(x, commentRepository.findAllByItem(x)))
                 .collect(Collectors.toList());
     }
