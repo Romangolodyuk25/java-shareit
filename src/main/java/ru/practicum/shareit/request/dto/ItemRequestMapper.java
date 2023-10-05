@@ -25,11 +25,11 @@ public class ItemRequestMapper {
                 .build();
     }
 
-    public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto, User requestor) {
-        return ItemRequest.builder()
-                .description(itemRequestDto.getDescription())
-                .created(itemRequestDto.getCreated() != null ? itemRequestDto.getCreated() : LocalDateTime.now())
-                .requestor(requestor)
-                .build();
-    }
+//    public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto, User requestor) {
+//        return ItemRequest.builder()
+//                .description(itemRequestDto.getDescription())
+//                .created(itemRequestDto.getCreated() != null ? itemRequestDto.getCreated() : LocalDateTime.now())
+//                .requestor(requestor)
+//                .build();
+//    }
 }

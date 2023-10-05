@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
@@ -133,6 +134,23 @@ public class BookingServiceImplTest {
 
         BookingDto updateBooking = bookingService.updateBooking(bookingDto.getId(), true, userDto1.getId());
         assertThat(updateBooking.getStatus().name(), equalTo(Status.APPROVED.name()));
+    }
+
+    @Test
+    @DisplayName("should update booking")
+    void shouldUpdateBookingStatusRejected() {
+        ItemDto itemDto3 = itemService.createItem(ItemDto.builder()
+                .name("Дрель")
+                .description("Что-то сверлит")
+                .available(true)
+                .build(), userDto1.getId());
+
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto3.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        BookingDto updateBooking = bookingService.updateBooking(bookingDto.getId(), false, userDto1.getId());
+        assertThat(updateBooking.getStatus().name(), equalTo(Status.REJECTED.name()));
     }
 
     @Test
@@ -276,7 +294,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should return unsupported exception for ")
+    @DisplayName("Should return unsupported exception")
     void shouldReturnUnsupportedExceptionForStateAll() {
         BookingDto bookingDto;
         BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusHours(1), LocalDateTime.now().plusDays(5));
@@ -306,6 +324,46 @@ public class BookingServiceImplTest {
         bookingDto2.setStatus(Status.REJECTED);
 
         List<BookingDto> list = bookingService.getAllBookingsByUserIdAndState(userDto2.getId(), State.CURRENT.name(), 0, 1);
+
+        assertThat(list.size(), equalTo(1));
+        assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));
+        assertThat(list.get(0).getStart(), equalTo(bookingDto.getStart()));
+        assertThat(list.get(0).getEnd(), equalTo(bookingDto.getEnd()));
+    }
+
+    @Test
+    @DisplayName("Should get all bookings by user id and state PAST")
+    void shouldGetAllBookingsByUserIdAndStatePast() {
+        List<BookingDto> list = bookingService.getAllBookingsByUserIdAndState(userDto2.getId(), State.PAST.name(), 0, 1);
+
+        assertThat(list.size(), equalTo(0));
+
+    }
+
+    @Test
+    @DisplayName("Should get all bookings by user id and state REJECTED")
+    void shouldGetAllBookingsByUserIdAndStateRejected() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+        bookingService.updateBooking(bookingDto.getId(), false, bookingDto.getItem().getOwner().getId());
+
+        List<BookingDto> list = bookingService.getAllBookingsByUserIdAndState(bookingDto.getBooker().getId(), State.REJECTED.name(), 0, 10);
+
+        assertThat(list.size(), equalTo(1));
+        assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));
+        assertThat(list.get(0).getStart(), equalTo(bookingDto.getStart()));
+        assertThat(list.get(0).getEnd(), equalTo(bookingDto.getEnd()));
+    }
+
+    @Test
+    @DisplayName("Should get all bookings by user id and state FUTURE")
+    void shouldGetAllBookingsByUserIdAndStateFuture() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusYears(1), LocalDateTime.now().plusYears(2));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        List<BookingDto> list = bookingService.getAllBookingsByUserIdAndState(bookingDto.getBooker().getId(), State.FUTURE.name(), 0, 10);
 
         assertThat(list.size(), equalTo(1));
         assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));
@@ -391,7 +449,57 @@ public class BookingServiceImplTest {
         assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));
         assertThat(list.get(0).getStart(), equalTo(bookingDto.getStart()));
         assertThat(list.get(0).getEnd(), equalTo(bookingDto.getEnd()));
+    }
 
+    @Test
+    @DisplayName("Should get all bookings by user id and state WAITING")
+    void shouldGetAllBookingsCurrentUserStateWaiting() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(bookingDto.getItem().getOwner().getId(), State.WAITING.name(), 0, 1);
+
+        assertThat(list.size(), equalTo(1));
+        assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));
+    }
+
+    @Test
+    @DisplayName("Should get all bookings by user id and state CURRENT")
+    void shouldGetAllBookingsCurrentUserStateCurrent() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(bookingDto.getItem().getOwner().getId(), State.CURRENT.name(), 0, 1);
+
+        assertThat(list.size(), equalTo(1));
+        assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));
+    }
+
+    @Test
+    @DisplayName("Should get all bookings by user id and state PAST")
+    void shouldGetAllBookingsCurrentUserStatePast() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(bookingDto.getItem().getOwner().getId(), State.PAST.name(), 0, 1);
+
+        assertThat(list.size(), equalTo(0));
+    }
+
+    @Test
+    @DisplayName("Should get all bookings by user id and state FUTURE")
+    void shouldGetAllBookingsCurrentUserStateFuture() {
+        BookingDto bookingDto;
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(),LocalDateTime.now().plusYears(1), LocalDateTime.now().plusYears(2));
+        bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
+
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(bookingDto.getItem().getOwner().getId(), State.FUTURE.name(), null, null);
+
+        assertThat(list.size(), equalTo(1));
+        assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));
     }
 
     private BookingDtoIn makeBookingDto(Long id, LocalDateTime start, LocalDateTime end) {

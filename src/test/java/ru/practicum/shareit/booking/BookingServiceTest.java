@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.model.Booking;
@@ -286,4 +287,5 @@ public class BookingServiceTest {
 
         assertThrows(UserIsOwnerException.class, () -> bookingService.createBooking(bookingDtoIn, bookingDto.getId()));
     }
+
 }

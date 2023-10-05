@@ -68,6 +68,7 @@ public class ItemServiceTest {
                 .name("test")
                 .email("test@mail.ru")
                 .build();
+
         item = Item.builder()
                 .id(1L)
                 .name("Вещь 1")
@@ -98,6 +99,31 @@ public class ItemServiceTest {
                 .item(item)
                 .created(LocalDateTime.now().plusHours(1))
                 .build();
+    }
+
+    @Test
+    void shouldGetAllItemWithPagination() {
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(user));
+
+        PageImpl<Item> itemPage = new PageImpl<>(Collections.singletonList(item));
+        Pageable page = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
+
+        when(itemRepository.findAllByOwnerId(1L, page))
+                .thenReturn(itemPage);
+
+        when(itemRepository.save(any()))
+                .thenReturn(item);
+        itemService.createItem(itemDto, 1);
+
+        List<ItemDto> receivedItemDto = itemService.getAllItemWithPagination(1, page.getPageNumber(), page.getPageSize());
+
+        when(bookingRepository.findAll())
+                .thenReturn(List.of(booking));
+
+        bookingRepository.save(booking);
+        List<ItemDto> items = itemService.getAllItemWithPagination(user.getId(), 0, 10);
+        assertThat(items.size(), equalTo(1));
     }
 
     @Test
@@ -242,9 +268,12 @@ public class ItemServiceTest {
                 .thenReturn(Optional.ofNullable(user));
         when(itemRepository.save(any()))
                 .thenReturn(item);
+
         itemService.createItem(itemDto, 1L);
         when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(item));
+        when(bookingRepository.findAll())
+                .thenReturn(List.of(booking));
 
         ItemDto receivedItemDto = itemService.getItemById(1, 1);
 
@@ -253,8 +282,8 @@ public class ItemServiceTest {
         assertThat(receivedItemDto.getDescription(), equalTo(itemDto.getDescription()));
         assertThat(receivedItemDto.getAvailable(), equalTo(itemDto.getAvailable()));
 
-        verify(itemRepository, times(2))
-                .findById(1L);
+        verify(itemRepository, times(1))
+                .findById(anyLong());
     }
 
     @Test
@@ -264,6 +293,7 @@ public class ItemServiceTest {
                 .thenReturn(Optional.ofNullable(user));
         when(itemRepository.save(any()))
                 .thenReturn(item);
+
         itemService.createItem(itemDto, 1L);
 
         when(itemRepository.findById(anyLong()))

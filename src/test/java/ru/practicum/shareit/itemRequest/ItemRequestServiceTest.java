@@ -136,6 +136,7 @@ public class ItemRequestServiceTest {
         assertThat(receivedItemRequest.get(0).getCreated(), equalTo(itemRequest.getCreated()));
     }
 
+
     @Test
     @DisplayName("should find itemRequest by Id")
     void shouldReturnItemRequestById() {
@@ -158,7 +159,7 @@ public class ItemRequestServiceTest {
 
     @Test
     @DisplayName("should throw for itemRequest by Id")
-    void shouldThowItemRequestById() {
+    void shouldThrowItemRequestById() {
         when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(user));
 
@@ -168,7 +169,7 @@ public class ItemRequestServiceTest {
         itemRequestService.createRequest(itemRequestDtoIn, 1);
 
         when(itemRequestRepository.findById(3L))
-                .thenThrow(new ItemRequestNotExist("Запрос не существует"));
+                .thenThrow(new ItemRequestNotExist("Запроса не существует"));
 
         Assertions.assertThrows(ItemRequestNotExist.class, () -> itemRequestService.getRequestById(3,1));
 

@@ -136,6 +136,45 @@ public class BookingControllerTest {
 
     @Test
     @DisplayName("should not save booking")
+    void shouldReturnNotFoundForSaveBookingUserIsOwner() throws Exception {
+
+        when(bookingService.createBooking(any(), anyLong()))
+                .thenThrow(new UserIsOwnerException("Юзер является владельцем вещи"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HEADER, 100))
+                .andExpect(status().isNotFound());
+
+        verify(bookingService, times(1))
+                .createBooking(any(), anyLong());
+    }
+
+    @Test
+    @DisplayName("should not save booking")
+    void shouldReturnIsNotAvailableException() throws Exception {
+
+        when(bookingService.createBooking(any(), anyLong()))
+                .thenThrow(new IsNotAvailableException("Вещь нельзя забронировать"));
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HEADER, 100))
+                .andExpect(status().isBadRequest());
+
+        verify(bookingService, times(1))
+                .createBooking(any(), anyLong());
+    }
+
+
+    @Test
+    @DisplayName("should not save booking")
     void shouldReturnNotFoundForSaveBookingItemNotExist() throws Exception {
 
         when(bookingService.createBooking(any(), anyLong()))

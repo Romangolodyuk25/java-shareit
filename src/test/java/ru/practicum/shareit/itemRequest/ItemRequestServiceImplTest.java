@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.ItemRequestNotExist;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -23,6 +24,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -90,6 +92,17 @@ public class ItemRequestServiceImplTest {
         assertThat(list.get(0).getId(), notNullValue());
         assertThat(list.get(0).getCreated(), equalTo(itemRequestDto.getCreated()));
         assertThat(list.get(0).getDescription(), equalTo(itemRequestDto.getDescription()));
+    }
+
+    @Test
+    @DisplayName("should throw exception not exist")
+    void shouldThrowExceptionForGetById() {
+        ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn();
+        itemRequestDtoIn.setDescription("Нужно что-то что пилит");
+
+        ItemRequestDto itemRequestDto = itemRequestService.createRequest(itemRequestDtoIn, userDto2.getId());
+
+        assertThrows(ItemRequestNotExist.class, () -> itemRequestService.getRequestById(userDto1.getId(), 9999));
     }
 
     @Test

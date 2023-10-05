@@ -24,20 +24,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleException(final Throwable e) {
-        log.error("Ошибка", e);
-        return new ErrorResponse("Ошибка", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationArgument(final MethodArgumentNotValidException e) {
-        log.error("Ошибка валидации", e);
-        return new ErrorResponse("Ошибка валидации", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotExist(final UserNotExistObject e) {
         log.error("Юзер не существуе", e);

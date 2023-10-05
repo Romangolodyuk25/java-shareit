@@ -9,11 +9,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.BookingNotExistException;
+import ru.practicum.shareit.exception.ItemRequestNotExist;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.controller.ItemRequestController;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
@@ -114,9 +117,11 @@ public class ItemRequestControllerTest {
         when(userService.getUserById(anyLong()))
                 .thenReturn(userDto);
         when(itemRequestService.getRequestById(anyLong(), anyLong()))
-                .thenReturn(itemRequestDto);
-        mvc.perform(get("/request/1").param("requestId", "1").header(HEADER, 1))
+                .thenThrow(new ItemRequestNotExist("Запроса не существует"));
+
+        mvc.perform(get("/requests/9999").header(HEADER, 1))
                 .andExpect(status().isNotFound());
 
     }
+
 }

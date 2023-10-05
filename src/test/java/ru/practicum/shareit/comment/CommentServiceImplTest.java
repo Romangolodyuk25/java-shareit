@@ -1,11 +1,13 @@
 package ru.practicum.shareit.comment;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
@@ -29,9 +31,13 @@ import javax.validation.ValidationException;
 
 import java.time.LocalDateTime;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
+@Rollback(value = false)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class CommentServiceImplTest {
@@ -46,7 +52,6 @@ public class CommentServiceImplTest {
 
     UserDto userDto;
     UserDto userDto2;
-    BookingDto bookingDto1;
     BookingDto bookingDto2;
     BookingDto bookingDto3;
     ItemDto itemDto;
@@ -77,11 +82,6 @@ public class CommentServiceImplTest {
                 .available(true)
                 .build(), userDto2.getId());
 
-        bookingDto1 = bookingService.createBooking(BookingDtoIn.builder()
-                        .itemId(itemDto.getId())
-                        .start(LocalDateTime.now().plusHours(1))
-                        .end(LocalDateTime.now().plusDays(1))
-                        .build(), userDto2.getId());
 
         bookingDto2 = bookingService.createBooking(BookingDtoIn.builder()
                 .itemId(itemDto.getId())
@@ -99,7 +99,7 @@ public class CommentServiceImplTest {
     }
 
     @Test
-    @DisplayName("should create comment validation booking")
+    @DisplayName("should not create comment validation booking")
     void shouldNotValidationBookingCreateComment() {
         CommentDtoIn commentDtoIn = new CommentDtoIn("CommentTest");
         CommentDto commentDto = CommentDtoMapper.toCommentDto(Comment.builder()

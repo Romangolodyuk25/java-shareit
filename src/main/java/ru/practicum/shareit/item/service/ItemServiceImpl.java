@@ -159,7 +159,7 @@ public class ItemServiceImpl implements ItemService {
         return item;
     }
 
-    private List<ItemDto> updateFromGetAllWithBooking(List<ItemDto> items) {
+    public List<ItemDto> updateFromGetAllWithBooking(List<ItemDto> items) {
         List<ItemDto> finalItems = new ArrayList<>();
         for (ItemDto i : items) {
             List<Booking> lastBookings = bookingRepository.findAllBookingByItemIdForLastBooking(i.getId(), LocalDateTime.now());
