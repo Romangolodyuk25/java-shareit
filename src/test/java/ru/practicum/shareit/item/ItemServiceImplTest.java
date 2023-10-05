@@ -61,6 +61,12 @@ public class ItemServiceImplTest {
                  .getSingleResult();
     }
 
+    @AfterEach
+    void afterEach() {
+        em.createNativeQuery("DELETE FROM USERS");
+        em.createNativeQuery("DELETE FROM ITEMS");
+    }
+
     @Test
     @Order(value = 1)
     void saveItem() {
