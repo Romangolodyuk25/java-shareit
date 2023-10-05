@@ -255,6 +255,7 @@ public class BookingControllerTest {
                 .getAllBookingsCurrentUser(anyLong(), anyString(), anyInt(), anyInt());
     }
 
+
     @Test
     @DisplayName("should update booking")
     void shouldUpdateBooking() throws Exception {
