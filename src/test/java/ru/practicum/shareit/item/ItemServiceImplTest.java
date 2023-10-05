@@ -2,7 +2,6 @@ package ru.practicum.shareit.item;
 
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -39,20 +38,14 @@ public class ItemServiceImplTest {
     private final ItemService itemService;
     private final UserService userService;
 
-    private UserDto userDto;
-
-    @BeforeEach
-    void beforeEach() {
-        userDto = userService.createUser(UserDto.builder()
+    @Test
+    @Order(value = 1)
+    void saveItem() {
+        UserDto userDto = userService.createUser(UserDto.builder()
                 .name("Vanya")
                 .email("vanya@email.ru")
                 .build()
         );
-    }
-
-    @Test
-    @Order(value = 1)
-    void saveItem() {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
@@ -73,6 +66,11 @@ public class ItemServiceImplTest {
     @DisplayName("should return all items")
     @Order(value = 2)
     void shouldReturnAllItems() {
+        UserDto userDto = userService.createUser(UserDto.builder()
+                .name("Vanya")
+                .email("vanya@email.ru")
+                .build()
+        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
@@ -90,6 +88,11 @@ public class ItemServiceImplTest {
     @DisplayName("should update item")
     @Order(value = 3)
     void shouldUpdateItem() {
+        UserDto userDto = userService.createUser(UserDto.builder()
+                .name("Vanya")
+                .email("vanya@email.ru")
+                .build()
+        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
@@ -111,6 +114,11 @@ public class ItemServiceImplTest {
     @DisplayName("should get item by id")
     @Order(value = 4)
     void shouldGetItemById() {
+        UserDto userDto = userService.createUser(UserDto.builder()
+                .name("Vanya")
+                .email("vanya@email.ru")
+                .build()
+        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
@@ -126,6 +134,11 @@ public class ItemServiceImplTest {
     @DisplayName("should search item")
     @Order(value = 5)
     void shouldSearchItem() {
+        UserDto userDto = userService.createUser(UserDto.builder()
+                .name("Vanya")
+                .email("vanya@email.ru")
+                .build()
+        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
@@ -137,6 +150,11 @@ public class ItemServiceImplTest {
     @Order(value = 6)
     @DisplayName("should throw exception for method save is empty name")
     void shouldReturnExceptionForEmptyName() {
+        UserDto userDto = userService.createUser(UserDto.builder()
+                .name("Vanya")
+                .email("vanya@email.ru")
+                .build()
+        );
         ItemDto itemDto = new ItemDto();
         itemDto.setDescription("Пилит и пилит");
         itemDto.setAvailable(true);
@@ -149,6 +167,11 @@ public class ItemServiceImplTest {
     @Order(value = 7)
     @DisplayName("should throw exception for method save is empty description")
     void shouldReturnExceptionForEmptyDescription() {
+        UserDto userDto = userService.createUser(UserDto.builder()
+                .name("Vanya")
+                .email("vanya@email.ru")
+                .build()
+        );
         ItemDto itemDto = new ItemDto();
         itemDto.setName("Пилa");
         itemDto.setAvailable(true);
@@ -161,6 +184,11 @@ public class ItemServiceImplTest {
     @DisplayName("should search empty list item")
     @Order(value = 8)
     void shouldSearchItemEmptyList() {
+        UserDto userDto = userService.createUser(UserDto.builder()
+                .name("Vanya")
+                .email("vanya@email.ru")
+                .build()
+        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
@@ -172,6 +200,11 @@ public class ItemServiceImplTest {
     @DisplayName("should return not exist item for get item by id")
     @Order(value = 9)
     void shouldReturnNotExistItemForGetItemById() {
+        UserDto userDto = userService.createUser(UserDto.builder()
+                .name("Vanya")
+                .email("vanya@email.ru")
+                .build()
+        );
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, userDto.getId());
 
@@ -183,6 +216,7 @@ public class ItemServiceImplTest {
     @DisplayName("should return not exist user for save item")
     @Order(value = 10)
     void shouldReturnNotExistUserForSaveItem() {
+
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
 
         assertThrows(UserNotExistObject.class, () -> itemService.createItem(itemDto, 9999));
