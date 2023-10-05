@@ -6,7 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
@@ -85,7 +84,7 @@ public class BookingServiceImplTest {
 
         booking = Booking.builder()
                 .id(1L)
-                .item(ItemDtoMapper.toItem(itemDto, UserDtoMapper.toUser(userDto1),itemRequest))
+                .item(ItemDtoMapper.toItem(itemDto, UserDtoMapper.toUser(userDto1), itemRequest))
                 .booker(UserDtoMapper.toUser(userDto2))
                 .status(Status.WAITING)
                 .start(LocalDateTime.now().plusHours(1))
@@ -493,7 +492,7 @@ public class BookingServiceImplTest {
     @DisplayName("Should get all bookings by user id and state FUTURE")
     void shouldGetAllBookingsCurrentUserStateFuture() {
         BookingDto bookingDto;
-        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(),LocalDateTime.now().plusYears(1), LocalDateTime.now().plusYears(2));
+        BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusYears(1), LocalDateTime.now().plusYears(2));
         bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
 
         List<BookingDto> list = bookingService.getAllBookingsCurrentUser(bookingDto.getItem().getOwner().getId(), State.FUTURE.name(), null, null);

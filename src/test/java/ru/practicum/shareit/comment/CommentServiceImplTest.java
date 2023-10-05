@@ -1,7 +1,6 @@
 package ru.practicum.shareit.comment;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,9 +30,6 @@ import javax.validation.ValidationException;
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
@@ -71,9 +67,9 @@ public class CommentServiceImplTest {
                 .build()
         );
         itemDto = itemService.createItem(ItemDto.builder()
-                        .name("Пила")
-                        .description("Пилит")
-                        .available(true)
+                .name("Пила")
+                .description("Пилит")
+                .available(true)
                 .build(), userDto.getId());
 
         itemDto2 = itemService.createItem(ItemDto.builder()
@@ -107,7 +103,7 @@ public class CommentServiceImplTest {
                 .created(LocalDateTime.now())
                 .author(UserDtoMapper.toUser(userDto))
                 .text("text")
-                        .build());
+                .build());
 
         assertThrows(ValidationException.class, () -> commentService.createComment(itemDto.getId(), commentDtoIn, userDto2.getId()));
     }

@@ -7,14 +7,11 @@ import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MissingPathVariableException;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.comment.dto.CommentDtoIn;
-import ru.practicum.shareit.item.comment.dto.CommentDtoMapper;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.service.CommentService;
 import ru.practicum.shareit.item.controller.ItemController;
@@ -27,8 +24,6 @@ import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.ValidationException;
-import java.lang.reflect.Method;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -81,11 +76,11 @@ public class ItemControllerTest {
             .id(1L)
             .author(UserDtoMapper.toUser(userDto))
             .item(ItemDtoMapper.toItem(itemDto, UserDtoMapper.toUser(userDto), ItemRequest.builder()
-                            .id(1L)
-                            .requestor(UserDtoMapper.toUser(userDto))
-                            .description("request")
-                            .created(LocalDateTime.now())
-                            .build()))
+                    .id(1L)
+                    .requestor(UserDtoMapper.toUser(userDto))
+                    .description("request")
+                    .created(LocalDateTime.now())
+                    .build()))
             .created(LocalDateTime.now())
             .text("Comment")
             .build();
