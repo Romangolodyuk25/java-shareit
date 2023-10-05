@@ -74,9 +74,9 @@ public class ItemServiceImplTest {
         TypedQuery<User> query = em.createQuery("Select u " +
                 "from User u " +
                 "where u.email = :email ", User.class);
-         user = query
+        user = query
                 .setParameter("email", userDto.getEmail())
-                 .getSingleResult();
+                .getSingleResult();
 
         User userFromCreate2 = new User();
         userFromCreate2.setName("Test");
@@ -282,7 +282,7 @@ public class ItemServiceImplTest {
         bookingDto = bookingService.createBooking(bookingDtoIn, user2.getId());
         bookingDto.setStatus(Status.WAITING);
 
-        List<ItemDto> searchItems = itemService.getAllItemWithPagination( user.getId(), null, null);
+        List<ItemDto> searchItems = itemService.getAllItemWithPagination(user.getId(), null, null);
         assertThat(searchItems.size(), equalTo(1));
     }
 
