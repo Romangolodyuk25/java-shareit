@@ -12,9 +12,11 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoIn;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
@@ -106,6 +108,22 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
+    @DisplayName("should get item request")
+    void shouldGetItemRequestById() {
+        ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn("что-то что пилит");
+        ItemRequestDto itemRequestDto = itemRequestService.createRequest(itemRequestDtoIn, userDto1.getId());
+        ItemRequest itemRequest = ItemRequestMapper.toItemRequestForItemRequestDtoIn(itemRequestDtoIn, UserDtoMapper.toUser(userDto1));
+
+        ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
+        itemDto.setRequestId(itemRequestDto.getId());
+        itemDto = itemService.createItem(itemDto, userDto1.getId());
+
+        ItemRequestDto receivedItemRequest = itemRequestService.getRequestById(userDto2.getId(), itemRequestDto.getId());
+        assertThat(receivedItemRequest.getId(), equalTo(itemRequestDto.getId()));
+
+    }
+
+    @Test
     @DisplayName("should create itemRequest for other User")
     void shouldCreateItemRequestForOtherUser() {
         ItemRequestDtoIn itemRequestDtoIn = new ItemRequestDtoIn();
@@ -131,4 +149,11 @@ public class ItemRequestServiceImplTest {
         assertThat(list.get(0).getDescription(), equalTo(itemRequestDto2.getDescription()));
     }
 
+    private ItemDto makeItemDto(String name, String description, Boolean available) {
+        return ItemDto.builder()
+                .name(name)
+                .description(description)
+                .available(available)
+                .build();
+    }
 }

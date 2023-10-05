@@ -98,7 +98,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    @Order(value = 1)
+    @Order(value = 5)
     void saveItem() {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, user.getId());
@@ -171,13 +171,13 @@ public class ItemServiceImplTest {
 
     @Test
     @DisplayName("should search item")
-    @Order(value = 5)
+    @Order(value = 1)
     void shouldSearchItem() {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, user.getId());
 
         List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), null, null);
-        assertThat(searchItems.size(), equalTo(3));
+        assertThat(searchItems.size(), equalTo(1));
     }
 
     @Test

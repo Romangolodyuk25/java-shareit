@@ -84,9 +84,9 @@ public class ErrorHandler {
         return new ErrorResponseUnsupp("Unknown state: UNSUPPORTED_STATUS");
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponseUnsupp handleMissingPathVariableException(final MissingPathVariableException e) {
-        return new ErrorResponseUnsupp("Не был передан параметр");
-    }
+//    @ExceptionHandler
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ErrorResponseUnsupp handleMissingPathVariableException(final MissingPathVariableException e) {
+//        return new ErrorResponseUnsupp("Не был передан параметр");
+//    }
 }

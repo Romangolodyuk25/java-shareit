@@ -234,6 +234,28 @@ public class BookingControllerTest {
     }
 
     @Test
+    @DisplayName("should return all bookings current user")
+    void shouldReturnAllBookingsCurrentUser() throws Exception {
+        when(userService.getUserById(anyLong()))
+                .thenReturn(UserDtoMapper.toUserDto(user));
+
+        when(bookingService.getAllBookingsCurrentUser(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(List.of(bookingDto));
+
+        mvc.perform(get("/bookings/owner").header(HEADER, 1))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[0].id", is(bookingDto.getId()), Long.class))
+                .andExpect(jsonPath("$.[0].start", is(bookingDto.getStart().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))))
+                .andExpect(jsonPath("$.[0].end", is(bookingDto.getEnd().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))))
+                .andExpect(jsonPath("$.[0].status", is(bookingDto.getStatus().name())))
+                .andExpect(jsonPath("$.[0].booker.id", is(bookingDto.getBooker().getId().intValue())))
+                .andExpect(jsonPath("$.[0].item.id", is(bookingDto.getItem().getId().intValue())));
+
+        verify(bookingService, times(1))
+                .getAllBookingsCurrentUser(anyLong(), anyString(), anyInt(), anyInt());
+    }
+
+    @Test
     @DisplayName("should update booking")
     void shouldUpdateBooking() throws Exception {
         when(userService.getUserById(anyLong()))
