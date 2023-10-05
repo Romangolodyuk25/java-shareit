@@ -175,6 +175,22 @@ public class ItemControllerTest {
     }
 
     @Test
+    @DisplayName("should search items")
+    void shouldSearchItems() throws Exception {
+        when(userService.getUserById(anyLong()))
+                .thenReturn(userDto);
+
+        List<ItemDto> list = List.of(itemDto);
+        when(itemService.searchItemsWithPagination("ПиЛит", userDto.getId(), 0, 1))
+                .thenReturn(list);
+
+        mvc.perform(get("/items/search?text=ПиЛит").header(HEADER, userDto.getId())
+                        .param("from", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @DisplayName("should update item")
     void shouldUpdate() throws Exception {
         when(userService.getUserById(anyLong()))

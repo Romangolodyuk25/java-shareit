@@ -53,6 +53,7 @@ public class CommentServiceImplTest {
     ItemDto itemDto;
     ItemDto itemDto2;
     ItemRequestDto itemRequestDto;
+    CommentDto commentDto;
 
     @BeforeEach
     void beforeEach() {
@@ -92,15 +93,21 @@ public class CommentServiceImplTest {
                 .build(), userDto.getId());
 
         itemRequestDto = itemRequestService.createRequest(new ItemRequestDtoIn("что-нибудь"), userDto2.getId());
+
+        commentDto = CommentDto.builder()
+                .id(1L)
+                .created(LocalDateTime.now())
+                .build();
     }
 
     @Test
     @DisplayName("should not create comment validation booking")
     void shouldNotValidationBookingCreateComment() {
         CommentDtoIn commentDtoIn = new CommentDtoIn("CommentTest");
-        CommentDto commentDto = CommentDtoMapper.toCommentDto(Comment.builder()
-                .id(1L)
-                .created(LocalDateTime.now())
+        CommentDto commentDto = new CommentDto();
+                commentDto = CommentDtoMapper.toCommentDto(Comment.builder()
+                .id(commentDto.getId())
+                .created(commentDto.getCreated())
                 .author(UserDtoMapper.toUser(userDto))
                 .text("text")
                 .build());

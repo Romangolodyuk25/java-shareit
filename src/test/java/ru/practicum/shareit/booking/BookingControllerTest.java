@@ -369,6 +369,7 @@ public class BookingControllerTest {
     @Test
     @DisplayName("should return booking by id")
     void shouldReturnBookingById() throws Exception {
+
         when(userService.getUserById(anyLong()))
                 .thenReturn(UserDtoMapper.toUserDto(user));
 
