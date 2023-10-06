@@ -65,8 +65,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getAllRequestsForOtherUser(long userId, Integer from, Integer size) throws ItemRequestNotExist {
         userRepository.findById(userId).orElseThrow((() -> new UserNotExistObject("Юзера с айди " + userId + " не существует")));
-        Pageable page = PageRequest.of(from, size , sort);
-
+        Pageable page = PageRequest.of(from, size, sort);
         Page<ItemRequest> itemRequestPage = itemRequestRepository.findByRequestor_IdNot(userId, page);
 
         List<ItemRequestDto> itemRequestDtos = itemRequestPage.getContent().stream()
