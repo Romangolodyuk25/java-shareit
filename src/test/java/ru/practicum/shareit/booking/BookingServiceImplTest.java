@@ -495,7 +495,7 @@ public class BookingServiceImplTest {
         BookingDtoIn bookingDtoIn = makeBookingDto(itemDto.getId(), LocalDateTime.now().plusYears(1), LocalDateTime.now().plusYears(2));
         bookingDto = bookingService.createBooking(bookingDtoIn, userDto2.getId());
 
-        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(bookingDto.getItem().getOwner().getId(), State.FUTURE.name(), null, null);
+        List<BookingDto> list = bookingService.getAllBookingsCurrentUser(bookingDto.getItem().getOwner().getId(), State.FUTURE.name(), 0, 10);
 
         assertThat(list.size(), equalTo(1));
         assertThat(list.get(0).getId(), equalTo(bookingDto.getId()));

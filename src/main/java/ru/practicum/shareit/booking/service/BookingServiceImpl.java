@@ -33,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    Sort sortDesc = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     public BookingDto createBooking(BookingDtoIn bookingDtoIn, long userId) {
@@ -113,7 +114,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<BookingDto> getBookingsByState(long userId, String state, Integer from, Integer size) {
-        Pageable page = validationForPagination(from, size);
+        if (from < 0) throw new ValidationException();
+        Pageable page = PageRequest.of(from / size, size, sortDesc);
 
         State receivedState = State.from(state)
                 .orElseThrow(() -> new UnsupportedStatusExist("Unknown state: " + state));
@@ -150,10 +152,12 @@ public class BookingServiceImpl implements BookingService {
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
 
-}
+    }
 
     private List<BookingDto> getBookingsByStateForOwner(long userId, String state, Integer from, Integer size) {
-        Pageable page = validationForPagination(from, size);
+        if (from < 0) throw new ValidationException();
+
+        Pageable page = PageRequest.of(from / size, size, sortDesc);
 
         State receivedState = State.from(state)
                 .orElseThrow(() -> new UnsupportedStatusExist("Unknown state: " + state));
@@ -188,22 +192,5 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findByItem_Owner_Id(userId, page).stream()
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
-    }
-
-    private Pageable validationForPagination(Integer from, Integer size) {
-        Sort sortDesc = Sort.by(Sort.Direction.DESC, "start");
-        Pageable page;
-        if (from == null || size == null) {
-            page = PageRequest.of(0, 10, sortDesc);
-            return page;
-        }
-        if (from == 0 && size == 0) {
-            throw new ValidationException("Ошибка параметров пагинации параметр size = 0");
-        }
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Ошибка параметров пагинации");
-        }
-        page = PageRequest.of(from / size, size, sortDesc);
-        return page;
     }
 }

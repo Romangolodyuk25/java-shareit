@@ -176,7 +176,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemDto = itemService.createItem(itemDto, user.getId());
 
-        List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), null, null);
+        List<ItemDto> searchItems = itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), 0, 10);
         assertThat(searchItems.size(), equalTo(3));
     }
 
@@ -282,7 +282,7 @@ public class ItemServiceImplTest {
         bookingDto = bookingService.createBooking(bookingDtoIn, user2.getId());
         bookingDto.setStatus(Status.WAITING);
 
-        List<ItemDto> searchItems = itemService.getAllItemWithPagination(user.getId(), null, null);
+        List<ItemDto> searchItems = itemService.getAllItemWithPagination(user.getId(), 0, 10);
         assertThat(searchItems.size(), equalTo(1));
     }
 
@@ -293,7 +293,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemService.createItem(itemDto, user.getId());
 
-        assertThrows(ValidationException.class, () -> itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), 0, 0));
+        assertThrows(ArithmeticException.class, () -> itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), 0, 0));
     }
 
     @Test
@@ -303,7 +303,7 @@ public class ItemServiceImplTest {
         ItemDto itemDto = makeItemDto("Пила", "Пилит и пилит", true);
         itemService.createItem(itemDto, user.getId());
 
-        assertThrows(ValidationException.class, () -> itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), -1, -2));
+        assertThrows(IllegalArgumentException.class, () -> itemService.searchItemsWithPagination("ПиЛиТ", user.getId(), -1, -2));
     }
 
     private ItemDto makeItemDto(String name, String description, Boolean available) {

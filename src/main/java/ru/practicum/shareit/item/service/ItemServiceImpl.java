@@ -85,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItemWithPagination(long userId, Integer from, Integer size) {
-        Pageable page = validationForPagination(from, size);
+        Pageable page = PageRequest.of(from / size, size, sort);
         Page<Item> itemPage = itemRepository.findAllByOwnerId(userId, page);
 
         List<ItemDto> items = itemPage.getContent().stream()
@@ -130,7 +130,7 @@ public class ItemServiceImpl implements ItemService {
         if (text.isEmpty()) {
             return new ArrayList<>();
         }
-        Pageable page = validationForPagination(from, size);
+        Pageable page = PageRequest.of(from / size, size, sort);
         Page<Item> itemPage = itemRepository.searchItemsPageable(text, page, userId);
 
         return itemPage.getContent().stream()
@@ -177,22 +177,6 @@ public class ItemServiceImpl implements ItemService {
             finalItems.add(i);
         }
         return finalItems;
-    }
-
-    private Pageable validationForPagination(Integer from, Integer size) {
-        Pageable page;
-        if (from == null || size == null) {
-            page = PageRequest.of(0, 10, sort);
-            return page;
-        }
-        if (from == 0 && size == 0) {
-            throw new ValidationException("Ошибка параметров пагинации параметр size = 0");
-        }
-        if (from < 0 || size < 0) {
-            throw new ValidationException("Ошибка параметров пагинации");
-        }
-        page = PageRequest.of(from / size, size, sort);
-        return page;
     }
 }
 
