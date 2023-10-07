@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.comment.dto;
+package ru.practicum.shareit.request.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentDtoIn {
-    private String text;
+public class ItemRequestDtoIn {
+    private String description;
 }

@@ -2,8 +2,6 @@ package ru.practicum.shareit.dto;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,20 +22,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleException(final Throwable e) {
-        log.error("Ошибка", e);
-        return new ErrorResponse("Ошибка", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationArgument(final MethodArgumentNotValidException e) {
-        log.error("Ошибка валидации", e);
-        return new ErrorResponse("Ошибка валидации", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotExist(final UserNotExistObject e) {
         log.error("Юзер не существуе", e);
@@ -51,11 +35,6 @@ public class ErrorHandler {
         return new ErrorResponse("Вещи не существуе", e.getMessage());
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotOwner(final NotOwnerException e) {
-        return new ErrorResponse("Юзер не является владельцем вещи", e.getMessage());
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -66,9 +45,16 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleItemRequestException(final ItemRequestNotExist e) {
+        log.error("Запроса не существуе", e);
+        return new ErrorResponse("Запроса не существует", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotOwner(final IsNotOwnerException e) {
         log.error("Юзер не является владельце", e);
-        return new ErrorResponse("Юзер не является владельце", e.getMessage());
+        return new ErrorResponse("Юзер не является владельцем", e.getMessage());
     }
 
     @ExceptionHandler
@@ -97,9 +83,4 @@ public class ErrorHandler {
         return new ErrorResponseUnsupp("Unknown state: UNSUPPORTED_STATUS");
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponseUnsupp handleMissingPathVariableException(final MissingPathVariableException e) {
-        return new ErrorResponseUnsupp("Не был передан параметр");
-    }
 }

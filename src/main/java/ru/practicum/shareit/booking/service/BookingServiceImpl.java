@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -31,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    Sort sortDesc = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     public BookingDto createBooking(BookingDtoIn bookingDtoIn, long userId) {
@@ -80,13 +83,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookingsByUserIdAndState(long userId, String state) {
-        return getBookingsByState(userId, state);
+    public List<BookingDto> getAllBookingsByUserIdAndState(long userId, String state, Integer from, Integer size) {
+        return getBookingsByState(userId, state, from, size);
     }
 
     @Override
-    public List<BookingDto> getAllBookingsCurrentUser(long userId, String state) {
-        return getBookingsByStateForOwner(userId, state);
+    public List<BookingDto> getAllBookingsCurrentUser(long userId, String state, Integer from, Integer size) {
+        return getBookingsByStateForOwner(userId, state, from, size);
     }
 
     private void validated(BookingDtoIn bookingDtoIn, Item item, long userId) {
@@ -110,75 +113,84 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private List<BookingDto> getBookingsByState(long userId, String state) {
+    private List<BookingDto> getBookingsByState(long userId, String state, Integer from, Integer size) {
+        if (from < 0) throw new ValidationException();
+        Pageable page = PageRequest.of(from / size, size, sortDesc);
+
         State receivedState = State.from(state)
                 .orElseThrow(() -> new UnsupportedStatusExist("Unknown state: " + state));
+
         userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("user not exist"));
-        Sort sortDesc = Sort.by(Sort.Direction.DESC, "start");
+
         if (receivedState.equals(State.WAITING)) {
-            return bookingRepository.findByBooker_IdAndStatus(userId, Status.WAITING, sortDesc).stream()
+            return bookingRepository.findByBooker_IdAndStatus(userId, Status.WAITING, page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
         if (receivedState.equals(State.CURRENT)) {
-            return bookingRepository.findAllBookingsForStateCurrent(userId, LocalDateTime.now()).stream()
+            return bookingRepository.findAllBookingsForStateCurrent(userId, LocalDateTime.now(), page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
         if (receivedState.equals(State.PAST)) {
-            return bookingRepository.findByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(),sortDesc).stream()
+            return bookingRepository.findByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
         if (receivedState.equals(State.REJECTED)) {
-            return bookingRepository.findByBooker_IdAndStatus(userId, Status.REJECTED, sortDesc).stream()
+            return bookingRepository.findByBooker_IdAndStatus(userId, Status.REJECTED, page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
         if (receivedState.equals(State.FUTURE)) {
-            return bookingRepository.findByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(),sortDesc).stream()
+            return bookingRepository.findByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        return bookingRepository.findByBooker_Id(userId, sortDesc).stream()
+
+        return bookingRepository.findByBooker_Id(userId, page).stream()
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
 
-}
+    }
 
-    private List<BookingDto> getBookingsByStateForOwner(long userId, String state) {
+    private List<BookingDto> getBookingsByStateForOwner(long userId, String state, Integer from, Integer size) {
+        if (from < 0) throw new ValidationException();
+
+        Pageable page = PageRequest.of(from / size, size, sortDesc);
+
         State receivedState = State.from(state)
                 .orElseThrow(() -> new UnsupportedStatusExist("Unknown state: " + state));
+
         userRepository.findById(userId).orElseThrow(() -> new UserNotExistObject("user not exist"));
-        Sort sortDesc = Sort.by(Sort.Direction.DESC, "start");
+
         if (receivedState.equals(State.WAITING)) {
-            return bookingRepository.findByItem_Owner_IdAndStatus(userId, Status.WAITING, sortDesc).stream()
+            return bookingRepository.findByItem_Owner_IdAndStatus(userId, Status.WAITING, page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
         if (receivedState.equals(State.CURRENT)) {
-            return bookingRepository.findAllBookingsForStateCurrentForOwner(userId, LocalDateTime.now()).stream()
+            return bookingRepository.findAllBookingsForStateCurrentForOwner(userId, LocalDateTime.now(), page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
         if (receivedState.equals(State.PAST)) {
-            return bookingRepository.findByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), sortDesc).stream()
+            return bookingRepository.findByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
         if (receivedState.equals(State.REJECTED)) {
-            return bookingRepository.findByItem_Owner_IdAndStatus(userId, Status.REJECTED, sortDesc).stream()
+            return bookingRepository.findByItem_Owner_IdAndStatus(userId, Status.REJECTED, page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
         if (receivedState.equals(State.FUTURE)) {
-            return bookingRepository.findByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), sortDesc).stream()
+            return bookingRepository.findByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), page).stream()
                     .map(BookingDtoMapper::toBookingDto)
                     .collect(Collectors.toList());
         }
-        return bookingRepository.findByItem_Owner_Id(userId, sortDesc).stream()
+        return bookingRepository.findByItem_Owner_Id(userId, page).stream()
                 .map(BookingDtoMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
-
 }
