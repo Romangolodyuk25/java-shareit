@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotNull;
@@ -31,6 +30,4 @@ public class Item {
 
     @NotNull
     private User owner;
-
-    private ItemRequest itemRequest;
 }
