@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exception.ItemRequestNotExist;
 import ru.practicum.shareit.item.controller.ItemClient;
 import ru.practicum.shareit.request.controller.ItemRequestClient;
 import ru.practicum.shareit.request.controller.ItemRequestController;
@@ -27,7 +26,6 @@ import java.time.format.DateTimeFormatter;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -79,17 +77,6 @@ public class ItemRequestControllerTest {
 
         mvc.perform(post("/requests").header(HEADER, 1))
                 .andExpect(status().isBadRequest());
-
-    }
-
-    @Test
-    @DisplayName("should not return itemRequest by id")
-    void shouldNotReturnItemRequestById() throws Exception {
-        when(itemRequestClient.getRequestById(anyLong(), anyLong()))
-                .thenThrow(new ItemRequestNotExist("Запроса не существует"));
-
-        mvc.perform(get("/requests/9999").header(HEADER, 1))
-                .andExpect(status().isNotFound());
 
     }
 

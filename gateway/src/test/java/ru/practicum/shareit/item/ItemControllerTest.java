@@ -11,22 +11,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.exception.UserNotExistObject;
 import ru.practicum.shareit.item.comment.dto.CommentDtoIn;
-import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.controller.CommentClient;
 import ru.practicum.shareit.item.controller.ItemClient;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoMapper;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.controller.UserClient;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserDtoMapper;
 
 import javax.validation.ValidationException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,18 +66,6 @@ public class ItemControllerTest {
             .email("ваня@mail.ru")
             .build();
 
-    private Comment comment = Comment.builder()
-            .id(1L)
-            .author(UserDtoMapper.toUser(userDto))
-            .item(ItemDtoMapper.toItem(itemDto, UserDtoMapper.toUser(userDto), ItemRequest.builder()
-                    .id(1L)
-                    .requestor(UserDtoMapper.toUser(userDto))
-                    .description("request")
-                    .created(LocalDateTime.now())
-                    .build()))
-            .created(LocalDateTime.now())
-            .text("Comment")
-            .build();
     private CommentDtoIn commentDtoIn = new CommentDtoIn("text");
 
     private ResponseEntity<Object> response = new ResponseEntity<>(itemDto, HttpStatus.OK);
@@ -128,22 +110,4 @@ public class ItemControllerTest {
                 .createItem(any(), anyLong());
     }
 
-    @Test
-    @DisplayName("should throw not exist user exception item for create item")
-    void shouldNotFoundForSaveItem() throws Exception {
-
-        when(itemClient.createItem(any(), anyLong()))
-                .thenThrow(new UserNotExistObject("user not found"));
-
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(itemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HEADER, 1))
-                .andExpect(status().isNotFound());
-
-        verify(itemClient, times(1))
-                .createItem(any(), anyLong());
-    }
 }

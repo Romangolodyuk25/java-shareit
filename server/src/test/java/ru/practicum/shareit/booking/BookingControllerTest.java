@@ -197,7 +197,7 @@ public class BookingControllerTest {
         when(userService.getUserById(anyLong()))
                 .thenReturn(UserDtoMapper.toUserDto(user));
 
-        when(bookingService.getAllBookingsByUserIdAndState(anyLong(), anyString(), anyInt(), anyInt()))
+        when(bookingService.getAllBookingsByUserIdAndState(anyLong(), any(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingDto));
 
         mvc.perform(get("/bookings").header(HEADER, 1))
@@ -210,7 +210,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.[0].item.id", is(bookingDto.getItem().getId().intValue())));
 
         verify(bookingService, times(1))
-                .getAllBookingsByUserIdAndState(anyLong(), anyString(), anyInt(), anyInt());
+                .getAllBookingsByUserIdAndState(anyLong(), any(), anyInt(), anyInt());
     }
 
     @Test
@@ -219,7 +219,7 @@ public class BookingControllerTest {
         when(userService.getUserById(anyLong()))
                 .thenReturn(UserDtoMapper.toUserDto(user));
 
-        when(bookingService.getAllBookingsCurrentUser(anyLong(), anyString(), anyInt(), anyInt()))
+        when(bookingService.getAllBookingsCurrentUser(anyLong(), any(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingDto));
 
         mvc.perform(get("/bookings/owner").header(HEADER, 1))
@@ -232,7 +232,7 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.[0].item.id", is(bookingDto.getItem().getId().intValue())));
 
         verify(bookingService, times(1))
-                .getAllBookingsCurrentUser(anyLong(), anyString(), anyInt(), anyInt());
+                .getAllBookingsCurrentUser(anyLong(), any(), anyInt(), anyInt());
     }
 
 

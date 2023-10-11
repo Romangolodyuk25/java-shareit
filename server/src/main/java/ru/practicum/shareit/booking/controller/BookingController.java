@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getAllBookingsByUserId(@RequestParam(defaultValue = "ALL") String state,
+    public List<BookingDto> getAllBookingsByUserId(@RequestParam(defaultValue = "ALL") State state,
                                                    @RequestHeader(value = "X-Sharer-User-Id") long userId,
                                                    @RequestParam(required = false, defaultValue = "0") Integer from,
                                                    @RequestParam(required = false, defaultValue = "10")  Integer size) {
@@ -44,7 +45,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getAllBookingsForCurrentUser(@RequestParam(defaultValue = "ALL") String state,
+    public List<BookingDto> getAllBookingsForCurrentUser(@RequestParam(defaultValue = "ALL") State state,
                                                          @RequestHeader(value = "X-Sharer-User-Id") long userId,
                                                          @RequestParam(required = false, defaultValue = "0") Integer from,
                                                          @RequestParam(required = false, defaultValue = "10")  Integer size) {

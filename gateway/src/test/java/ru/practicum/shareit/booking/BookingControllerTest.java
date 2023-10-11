@@ -15,8 +15,7 @@ import ru.practicum.shareit.booking.controller.BookingClient;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
-import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.booking.dto.Status;
 import ru.practicum.shareit.item.controller.ItemClient;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.controller.UserClient;
@@ -86,82 +85,6 @@ public class BookingControllerTest {
 
     private ResponseEntity<Object> response = new ResponseEntity<>(bookingDto, HttpStatus.OK);
 
-    @Test
-    @DisplayName("should not save booking")
-    void shouldReturnNotFoundForSaveBookingUserNotExist() throws Exception {
-
-        when(bookingClient.bookItem(anyLong(), any()))
-                .thenThrow(new UserNotExistObject("user not exist"));
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HEADER, 100))
-                .andExpect(status().isNotFound());
-
-        verify(bookingClient, times(1))
-                .bookItem(anyLong(), any());
-    }
-
-    @Test
-    @DisplayName("should not save booking")
-    void shouldReturnNotFoundForSaveBookingUserIsOwner() throws Exception {
-
-        when(bookingClient.bookItem(anyLong(), any()))
-                .thenThrow(new UserIsOwnerException("Юзер является владельцем вещи"));
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HEADER, 100))
-                .andExpect(status().isNotFound());
-
-        verify(bookingClient, times(1))
-                .bookItem(anyLong(), any());
-    }
-
-    @Test
-    @DisplayName("should not save booking")
-    void shouldReturnIsNotAvailableException() throws Exception {
-
-        when(bookingClient.bookItem(anyLong(), any()))
-                .thenThrow(new IsNotAvailableException("Вещь нельзя забронировать"));
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HEADER, 100))
-                .andExpect(status().isBadRequest());
-
-        verify(bookingClient, times(1))
-                .bookItem(anyLong(), any());
-    }
-
-
-    @Test
-    @DisplayName("should not save booking")
-    void shouldReturnNotFoundForSaveBookingItemNotExist() throws Exception {
-
-        when(bookingClient.bookItem(anyLong(), any()))
-                .thenThrow(new ItemNotExistException("item not exist"));
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header(HEADER, 100))
-                .andExpect(status().isNotFound());
-
-        verify(bookingClient, times(1))
-                .bookItem(anyLong(), any());
-    }
 
     @Test
     @DisplayName("should not save booking validation")
