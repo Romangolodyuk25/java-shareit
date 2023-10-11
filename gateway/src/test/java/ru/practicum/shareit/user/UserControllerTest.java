@@ -47,7 +47,7 @@ public class UserControllerTest {
             .email("ваня@mail.ru")
             .build();
 
-    private ResponseEntity<Object> response = new ResponseEntity<>(userDto,HttpStatus.OK);
+    private ResponseEntity<Object> response = new ResponseEntity<>(userDto, HttpStatus.OK);
 
     @Test
     @DisplayName("should save users")
